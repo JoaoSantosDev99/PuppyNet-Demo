@@ -3,56 +3,60 @@ import profile from "./assets/profile.png";
 import { useEffect, useState } from "react";
 import { useAccount, useSigner } from "wagmi";
 import { addressShortener } from "./utils";
+
 import { ethers } from "ethers";
-// import registrarAbi from "./contracts/tokens_abi.json";
-import DomainlistItem from "./components/UI/DomainItem";
+import registrarAbi from "./contracts/registrar_abi.json";
+import registryAbi from "./contracts/registry_abi.json";
+
 import SubDomainlistItem from "./components/UI/SubdomainItem";
 import { Link } from "react-router-dom";
-const { getNFTsByAddress } = require("sns-namechecker");
 
-const Domain = () => {
-  const { address, isConnected } = useAccount();
-  const [primary, setprimary] = useState("cryptodaddy.inu");
-  const [tokenBalance, setTokenBalance] = useState();
-  const [updateUserData, setUpdateUserData] = useState(false);
+const Domain = ({ domain }) => {
   const { data: signer } = useSigner();
+  const { address, isConnected } = useAccount();
 
-  //   const staticProvider = new ethers.providers.JsonRpcProvider(
-  //     "https://rpc.ankr.com/eth"
-  //   );
+  const [subdomainList, setSubdomainList] = useState([]);
+  const [registrarAdd, setRegistrarAdd] = useState("");
+  const [domainOwner, setDomainOwner] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  //   const tokenAddress = "0xEa4a2327E75252517535fd013b7C6706609819DB";
-  //   const tokenAbi = abi;
+  const staticProvider = new ethers.providers.JsonRpcProvider(
+    "https://rpc.ankr.com/eth_goerli"
+  );
 
-  //   const readTokenContract = new ethers.Contract(
-  //     tokenAddress,
-  //     tokenAbi,
-  //     staticProvider
-  //   );
+  const registryAdd = "0x7A3Bf49274C893De0122eaDA97BFb572288B94fC";
 
-  //   useEffect(() => {
-  //     const getBalance = async () => {
-  //       const balance = await readTokenContract.balanceOf(address);
-  //       const formatedBalance = ethers.utils.formatUnits(balance, 18);
-  //       setTokenBalance(
-  //         Number(Number(formatedBalance).toFixed(0)).toLocaleString()
-  //       );
-  //     };
+  const readRegistry = new ethers.Contract(
+    registryAdd,
+    registryAbi,
+    staticProvider
+  );
 
-  //     const fetchUserNfts = async () => {
-  //       const test = await getNFTsByAddress(
-  //         "0x689f654f452cbe147e870d290f84e6ad479f48a0"
-  //       );
-  //       console.log(test);
-  //     };
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      setIsLoading(true);
+      const data = await readRegistry.registry(domain);
+      setDomainOwner(addressShortener(data.owner));
+      setRegistrarAdd(data.registrar);
+      console.table({ owner: data.owner, registrar: data.registrar });
 
-  //     getBalance();
-  //     fetchUserNfts();
-  //   }, []);
+      const readRegistrar = new ethers.Contract(
+        data.registrar,
+        registrarAbi,
+        staticProvider
+      );
 
-  const changePrimary = (e) => {
-    setprimary(e.target.textContent);
-  };
+      const subdomains = await readRegistrar.getAllSubDomains();
+      setSubdomainList(subdomains);
+      console.log(subdomains);
+
+      setIsLoading(false);
+    };
+
+    fetchInitialData();
+  }, []);
+
+  console.log(domain);
 
   return (
     <section className="w-full flex justify-center">
@@ -62,9 +66,13 @@ const Domain = () => {
         <div className="mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
           <div className="w-36 p-2 h-36 rounded-xl bg-[#fdfdfd] border-2 border-[#919191]"></div>
           <h2 className="p-2 rounded-xl bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
-            exampledoamin.inu
+            {domain}.inu
           </h2>
-          <span className="text-[#b3fb7b] text-lg italic">shibarium.com</span>
+          {/* <span className="text-[#b3fb7b] text-lg italic">shibarium.com</span> */}
+
+          <span className="text-[#b3fb7b] text-lg italic">
+            Owner: {domainOwner}
+          </span>
 
           {/* Description */}
           <p className="max-w-lg text-center mt-5 text-white font-bold">
@@ -81,17 +89,26 @@ const Domain = () => {
 
         {/* subdomains List */}
         <ul className="mt-10 mb-20 max-w-4xl flex justify-center flex-wrap gap-2">
-          <SubDomainlistItem parent="domain" sub="dev" />
-          <SubDomainlistItem parent="domain" sub="marketing" />{" "}
-          <SubDomainlistItem parent="domain" sub="airdrop" />{" "}
-          <SubDomainlistItem parent="domain" sub="vault" />{" "}
-          <SubDomainlistItem parent="domain" sub="cto" />{" "}
-          <SubDomainlistItem parent="domain" sub="ceo" />{" "}
-          <SubDomainlistItem parent="domain" sub="liquidity" />{" "}
-          <SubDomainlistItem parent="domain" sub="burn" />{" "}
-          <SubDomainlistItem parent="domain" sub="vested" />{" "}
-          <SubDomainlistItem parent="domain" sub="presale" />{" "}
-          <SubDomainlistItem parent="domain" sub="casino" />{" "}
+          {isLoading ? (
+            <span className="text-3xl text-gray-200">
+              Loading Subdomains...
+            </span>
+          ) : (
+            <>
+              {subdomainList.length !== 0 ? (
+                subdomainList.map((item) => (
+                  <SubDomainlistItem
+                    parent={domain}
+                    sub={item}
+                  />
+                ))
+              ) : (
+                <span className="font-bold text-center text-xl text-white">
+                  No subdomains set yet...
+                </span>
+              )}
+            </>
+          )}
         </ul>
       </div>
       <Link to="/">

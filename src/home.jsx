@@ -7,40 +7,37 @@ import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
 import { addressShortener, longAddressCrop } from "./utils";
 import DomainlistItem from "./components/UI/DomainItem";
 import { ethers } from "ethers";
-import regyAbi from "./contracts/registry_abi.json";
+import registryAbi from "./contracts/registry_abi.json";
 
-const { getAllNFTs } = require("sns-namechecker");
+const Home = ({ setter }) => {
+  const { address, isConnected } = useAccount();
+  const { data: signer } = useSigner();
+  const registryAddress = "0x7A3Bf49274C893De0122eaDA97BFb572288B94fC";
 
-const Home = () => {
-  const [filterActive, setFilterActive] = useState(false);
   const [inputText, setInputText] = useState("");
-  const [allNfts, setAllNfts] = useState();
   const [available, setAvailable] = useState(true);
-  const [domainOwner, setDomainOwner] = useState("");
-  const registryAddress = "wasd";
-  const registryAbi = regyAbi;
+  const [totalDomains, setTotalDomains] = useState(0);
+  const [domainList, setDomainList] = useState([]);
 
-  useEffect(() => {
-    // const fetchAllNfts = async () => {
-    //   const allNfts = await getAllNFTs();
-    //   setAllNfts(allNfts);
-    // };
-
-    const fetchDomainOwner = () => {
-      setDomainOwner(address);
-    };
-
-    // fetchAllNfts();
-    fetchDomainOwner();
-  }, []);
+  const staticProvider = new ethers.providers.JsonRpcProvider(
+    "https://rpc.ankr.com/eth_goerli"
+  );
 
   const { open } = useWeb3Modal();
   const { chain } = useNetwork();
   const { switchNetwork } = useSwitchNetwork();
 
-  const { address, isConnected } = useAccount();
-  const { data: signer } = useSigner();
-  // const nfContract = new ethers.Contract(registryAddress, registryAbi, signer);
+  const readRegistryContract = new ethers.Contract(
+    registryAddress,
+    registryAbi,
+    staticProvider
+  );
+
+  const registryContract = new ethers.Contract(
+    registryAddress,
+    registryAbi,
+    signer
+  );
 
   const connectWallet = () => {
     if (chain?.id !== 1) {
@@ -72,13 +69,50 @@ const Home = () => {
   };
 
   const validateAddress = async (text) => {
-    // if (signer === undefined) {
-    //   return;
-    // }
-    // const call = await nfContract.getAddress(text);
-    // setAvailable(call === "0x0000000000000000000000000000000000000000");
-    // return call === "0x0000000000000000000000000000000000000000";
+    const call = await readRegistryContract.checkAvailable(text);
+    setAvailable(call);
+    console.log(call);
   };
+
+  const purchaseDomain = async () => {
+    if (signer === undefined) {
+      connectWallet();
+    }
+
+    if (chain?.id !== 5) {
+      switchNetwork?.(5);
+    }
+
+    try {
+      const newDomain = await registryContract.newDomain(inputText);
+      await newDomain.wait();
+      alert("New Domain Created!");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      const rawTotalSupply = await readRegistryContract.totalSupply();
+      const totalSupply = ethers.utils.formatUnits(rawTotalSupply, 0);
+
+      setTotalDomains(totalSupply);
+      console.log("Total supply:", totalSupply);
+
+      let totalData = [];
+      for (let i = 0; i < totalSupply; i++) {
+        const owner = await readRegistryContract.ownerOf(i);
+        const domain = await readRegistryContract.tokenToDomain(i);
+        totalData.push({ owner: owner, domain: domain });
+      }
+
+      setDomainList(totalData);
+      console.log(totalData);
+    };
+
+    fetchInitialData();
+  }, []);
 
   return (
     <section className="w-full flex justify-center">
@@ -103,15 +137,23 @@ const Home = () => {
             {inputText !== "" && (
               <div>
                 {!available ? (
-                  <span className="text-[#82633b] font-bold flex justify-center items-center gap-2">
+                  <span className="text-[#000000] font-bold flex justify-center items-center gap-2">
                     Address already taken!
                   </span>
                 ) : (
                   <span className="text-[#ededed] font-bold flex justify-center items-center gap-2">
-                    {chain?.id !== 1 ? (
+                    {chain?.id !== 5 ? (
                       "Please, connect or switch to Goerli."
                     ) : (
-                      <span className="flex gap-1">{inputText}.inu</span>
+                      <div className="flex flex-col items-center">
+                        <span className="flex gap-1">{inputText}.inu</span>
+                        <button
+                          onClick={purchaseDomain}
+                          className="p-2 bg-[#000] rounded-lg"
+                        >
+                          purchase Domain
+                        </button>
+                      </div>
                     )}
                   </span>
                 )}
@@ -132,10 +174,16 @@ const Home = () => {
           ) : (
             <div>
               <div className="hidden md:flex">
-                <ConnectButton title="Connect Wallet" onClick={connectWallet} />
+                <ConnectButton
+                  title="Connect Wallet"
+                  onClick={connectWallet}
+                />
               </div>
               <div className="md:hidden">
-                <ConnectButton title="Connect" onClick={connectWallet} />
+                <ConnectButton
+                  title="Connect"
+                  onClick={connectWallet}
+                />
               </div>
             </div>
           )}
@@ -148,30 +196,26 @@ const Home = () => {
         </Link>
 
         {/* Domains List */}
-        <ul className="mt-20 mb-10 max-w-4xl flex flex-wrap gap-2">
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
-          <DomainlistItem />
+        <ul className="mt-20 mb-32 max-w-4xl flex flex-wrap gap-2">
+          {domainList.length === 0 ? (
+            <span className="text-white font-bold text-3xl">
+              Loading Domains...
+            </span>
+          ) : (
+            domainList.map((item) => (
+              <DomainlistItem
+                domain={item.domain}
+                owner={item.owner}
+                subCount={"To be impl."}
+                setter={setter}
+              />
+            ))
+          )}
         </ul>
 
-        <button className="bg-[#3d3d3d] mb-20 max-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold">
+        {/* <button className="bg-[#3d3d3d] mb-20 max-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold">
           More
-        </button>
+        </button> */}
       </div>
     </section>
   );

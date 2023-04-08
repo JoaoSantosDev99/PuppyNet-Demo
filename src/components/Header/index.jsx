@@ -57,7 +57,7 @@ const Header = () => {
           </ul>
         </div>
         <div className="max-w-screen-2xl bg-[#c3ff43f0] font-bold w-full flex justify-center items-center p-2 rounded-xl">
-          This is a warning, write something here
+          This is a demo running on Goerli
         </div>
       </div>
     </header>
