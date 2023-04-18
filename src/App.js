@@ -7,11 +7,49 @@ import Footer from "./components/Footer";
 import Home from "./home";
 import User from "./user";
 import top from "./assets/top.png";
-import Domain from "./domain";
+import Domain from "./Domain";
+import { ethers } from "ethers";
+import registryAbi from "./contracts/registry_abi.json";
 
 function App() {
   // const [backTop, setBackTop] = useState(false);
   const [domain, setDomain] = useState();
+  const [totalDomains, setTotalDomains] = useState(0);
+  const [domainList, setDomainList] = useState([]);
+  const registryAddress = "0x7A3Bf49274C893De0122eaDA97BFb572288B94fC";
+
+  const staticProvider = new ethers.providers.JsonRpcProvider(
+    "https://rpc.ankr.com/eth_goerli"
+  );
+
+  const readRegistryContract = new ethers.Contract(
+    registryAddress,
+    registryAbi,
+    staticProvider
+  );
+
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      const rawTotalSupply = await readRegistryContract.totalSupply();
+      const totalSupply = ethers.utils.formatUnits(rawTotalSupply, 0);
+
+      setTotalDomains(totalSupply);
+      console.log("Total supply:", totalSupply);
+
+      let totalData = [];
+      for (let i = 0; i < totalSupply; i++) {
+        const owner = await readRegistryContract.ownerOf(i);
+        const domain = await readRegistryContract.tokenToDomain(i);
+        totalData.push({ owner: owner, domain: domain });
+      }
+
+      setDomainList(totalData);
+      // console.log("app:", totalData);
+    };
+
+    fetchInitialData();
+  }, []);
+
   // useEffect(() => {
   //   const handleShadow = () => {
   //     if (window.scrollY >= 200) {
@@ -52,7 +90,7 @@ function App() {
             element={<Home setter={setDomain} />}
           />
           <Route
-            path="/domain"
+            path="/domain/:id"
             element={
               <Domain
                 setter={setDomain}
@@ -60,6 +98,7 @@ function App() {
               />
             }
           />
+
           <Route
             path="/user"
             element={<User />}

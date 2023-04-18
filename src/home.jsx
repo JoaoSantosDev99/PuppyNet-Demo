@@ -18,7 +18,7 @@ const Home = ({ setter }) => {
   const [available, setAvailable] = useState(true);
   const [totalDomains, setTotalDomains] = useState(0);
   const [domainList, setDomainList] = useState([]);
-
+  const [primaryDomain, setPrimaryDomain] = useState("");
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth_goerli"
   );
@@ -92,10 +92,23 @@ const Home = ({ setter }) => {
     }
   };
 
+  const checkBefore = () => {
+    if (signer === undefined) {
+      return alert("Please Connect Wallet");
+    }
+  };
+
   useEffect(() => {
     const fetchInitialData = async () => {
       const rawTotalSupply = await readRegistryContract.totalSupply();
       const totalSupply = ethers.utils.formatUnits(rawTotalSupply, 0);
+
+      if (isConnected) {
+        const name = await readRegistryContract.primaryDomain(address);
+
+        setPrimaryDomain(name);
+        console.log("name", name);
+      }
 
       setTotalDomains(totalSupply);
       console.log("Total supply:", totalSupply);
@@ -170,7 +183,13 @@ const Home = ({ setter }) => {
         {/* User buttons */}
         <div className="mt-5">
           {isConnected ? (
-            <ConnectButton title={longAddressCrop(address)} />
+            <ConnectButton
+              title={
+                primaryDomain === ""
+                  ? longAddressCrop(address)
+                  : primaryDomain + ".inu"
+              }
+            />
           ) : (
             <div>
               <div className="hidden md:flex">
@@ -189,7 +208,10 @@ const Home = ({ setter }) => {
           )}
         </div>
 
-        <Link to="/user">
+        <Link
+          onClick={checkBefore}
+          to={signer && "/user"}
+        >
           <button className="bg-[#606060] mt-2 max-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#f8f8f8] font-bold p-2">
             My Domains
           </button>

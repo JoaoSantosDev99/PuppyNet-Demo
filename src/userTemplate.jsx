@@ -4,117 +4,65 @@ import { useEffect, useState } from "react";
 import { useAccount, useSigner } from "wagmi";
 import { addressShortener } from "./utils";
 import { ethers } from "ethers";
+// import registrarAbi from "./contracts/tokens_abi.json";
 import DomainlistItem from "./components/UI/DomainItem";
 import SubDomainlistItem from "./components/UI/SubdomainItem";
-import { Link, useParams } from "react-router-dom";
-import registryAbi from "./contracts/registry_abi.json";
-import registrarAbi from "./contracts/registrar_abi.json";
-import { longAddressCrop } from "./utils";
-import NewSubdomainModal from "./components/UI/NewSubdomain";
-import Loading from "./components/UI/LoadingAnimation/Loading";
+import { Link } from "react-router-dom";
+const { getNFTsByAddress } = require("sns-namechecker");
 
 const User = () => {
-  const { id } = useParams();
-
   const { address, isConnected } = useAccount();
   const [primary, setprimary] = useState("cryptodaddy.inu");
-  // real primary domain
-  const [primaryDomain, setPrimaryDomain] = useState("");
   const [tokenBalance, setTokenBalance] = useState();
   const [updateUserData, setUpdateUserData] = useState(false);
-  const [newSubModal, setNewSubModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [subdomainList, setSubdomainList] = useState([]);
-  const [currentDomain, setCurrentDomain] = useState();
-  const [userDomains, setUserDomains] = useState([]);
-  const [userDomainsAmount, setUserDomainsAmount] = useState(0);
-
   const { data: signer } = useSigner();
 
-  const staticProvider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.ankr.com/eth_goerli"
-  );
+  //   const staticProvider = new ethers.providers.JsonRpcProvider(
+  //     "https://rpc.ankr.com/eth"
+  //   );
 
-  const registryAdd = "0x7A3Bf49274C893De0122eaDA97BFb572288B94fC";
-  let registrarAdd = "0x8A3Bf49274C893De0122eaDA97BFb572288B94fC";
+  //   const tokenAddress = "0xEa4a2327E75252517535fd013b7C6706609819DB";
+  //   const tokenAbi = abi;
 
-  const readRegistryContract = new ethers.Contract(
-    registryAdd,
-    registryAbi,
-    staticProvider
-  );
+  //   const readTokenContract = new ethers.Contract(
+  //     tokenAddress,
+  //     tokenAbi,
+  //     staticProvider
+  //   );
 
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      console.log("address", address);
-      const balance = await readRegistryContract.balanceOf(address);
-      const formatedBalance = ethers.utils.formatUnits(balance, 0);
-      const primaryDom = await readRegistryContract.primaryDomain(address);
-      const primDom = await readRegistryContract.primaryDomain(address);
+  //   useEffect(() => {
+  //     const getBalance = async () => {
+  //       const balance = await readTokenContract.balanceOf(address);
+  //       const formatedBalance = ethers.utils.formatUnits(balance, 18);
+  //       setTokenBalance(
+  //         Number(Number(formatedBalance).toFixed(0)).toLocaleString()
+  //       );
+  //     };
 
-      console.log("primDom", primDom);
-      const add = await readRegistryContract.registry(primDom);
-      console.log("primDom", add.registrar);
+  //     const fetchUserNfts = async () => {
+  //       const test = await getNFTsByAddress(
+  //         "0x689f654f452cbe147e870d290f84e6ad479f48a0"
+  //       );
+  //       console.log(test);
+  //     };
 
-      const readRegistrarContract = new ethers.Contract(
-        add.registrar,
-        registrarAbi,
-        staticProvider
-      );
-
-      if (add.registrar !== "0x0000000000000000000000000000000000000000") {
-        const allSubdomains = await readRegistrarContract.getAllSubDomains();
-        setSubdomainList(allSubdomains);
-      }
-
-      setPrimaryDomain(primaryDom);
-      setCurrentDomain(primaryDom);
-      setUserDomains();
-      setUserDomainsAmount(formatedBalance);
-    };
-    setTimeout(() => {
-      fetchAllUserDomains();
-    }, 2000);
-
-    fetchInitialData();
-  }, []);
+  //     getBalance();
+  //     fetchUserNfts();
+  //   }, []);
 
   const changePrimary = (e) => {
     setprimary(e.target.textContent);
   };
 
-  // const fetchSubdomains = async () => {};
-
-  const fetchAllUserDomains = async () => {
-    const domainsArray = [];
-
-    for (let i = 0; i < userDomainsAmount; i++) {
-      const rawDomainId = await readRegistryContract.tokenOfOwnerByIndex(
-        address,
-        i
-      );
-      const domainId = ethers.utils.formatUnits(rawDomainId, 0);
-
-      const domainName = await readRegistryContract.tokenToDomain(
-        domainId.toString()
-      );
-      domainsArray.push(domainName);
-    }
-
-    setUserDomains(domainsArray);
-  };
-
   return (
     <section className="w-full flex justify-center">
-      {newSubModal && <NewSubdomainModal setVisibility={setNewSubModal} />}
-      {isLoading && <Loading />}
       <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
         {/* Avatar */}
 
         <div className="mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
           <div className="w-36 p-2 h-36 rounded-xl bg-[#fdfdfd] border-2 border-[#919191]"></div>
           <h2 className="p-2 rounded-xl bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
-            {primaryDomain !== "" ? primaryDomain : longAddressCrop(address)}
+            exampledoamin.inu
           </h2>
 
           {/* Description */}
@@ -133,35 +81,54 @@ const User = () => {
                   className="relative"
                   data-te-dropdown-ref
                 >
-                  {primaryDomain !== "" ? (
-                    <>
-                      <button
-                        className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl"
-                        data-te-dropdown-toggle-ref
-                      >
-                        {primaryDomain}
-                      </button>
-                      <ul
-                        className="absolute w-full z-[1000] text-[#ededed] font-bold p-4 hidden list-none overflow-hidden rounded-lg border-none bg-[#8b8b8b] shadow-lg [&[data-te-dropdown-show]]:block"
-                        aria-labelledby="dropdownMenu"
-                        data-te-dropdown-menu-ref
-                      >
-                        {console.log("dom b5", userDomains)}
-                        {userDomains?.map((item) => (
-                          <li
-                            // onClick={changePrimary}
-                            className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
-                          >
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  ) : (
-                    <button className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl">
-                      No Domains
-                    </button>
-                  )}
+                  <button
+                    className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl"
+                    data-te-dropdown-toggle-ref
+                  >
+                    {primary}
+                  </button>
+                  <ul
+                    className="absolute w-full z-[1000] text-[#ededed] font-bold p-4 hidden list-none overflow-hidden rounded-lg border-none bg-[#8b8b8b] shadow-lg [&[data-te-dropdown-show]]:block"
+                    aria-labelledby="dropdownMenu"
+                    data-te-dropdown-menu-ref
+                  >
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                    >
+                      cryptodaddy.inu
+                    </li>
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                    >
+                      snshypper.inu
+                    </li>
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                    >
+                      100xmisser.inu
+                    </li>
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                    >
+                      elonenjoyer420.inu
+                    </li>
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                    >
+                      fomoguy65.inu
+                    </li>
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                    >
+                      paperhands69.inu
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
@@ -175,9 +142,7 @@ const User = () => {
           {/* Data */}
           <div className="flex flex-col flex-wrap justify-center items-center gap-1">
             <ul className="bg-[#c3c3c3] text-center flex justify-center text-[#000000] w-[350px] h-36 flex-col text-lg sm:text-xl font-bold p-3 rounded-xl">
-              <li>
-                Primary: {primaryDomain === "" ? "not set" : primaryDomain}
-              </li>
+              <li>Primary: {primary}</li>
               <li>Website: shibarium.com</li>
               <li>SNS Balance: 100.000</li>
             </ul>
@@ -192,43 +157,45 @@ const User = () => {
           {/* Transfer Domain */}
           <div className="flex flex-col bg-[#8b8b8b] w-[400px] justify-center items-center p-2 rounded-xl">
             {/* Dropdown */}
-
-            {/* primaryDomain !== "" */}
             <div className="flex justify-center w-full">
               <div className="w-[90%]">
                 <div
                   className="relative"
                   data-te-dropdown-ref
                 >
-                  {primaryDomain !== "" ? (
-                    <>
-                      <button
-                        className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#9d9d9d] flex justify-center items-center p-2 rounded-xl"
-                        data-te-dropdown-toggle-ref
-                      >
-                        {subdomainList[0]}
-                      </button>
-                      <ul
-                        className="absolute w-full z-[1000] text-[#fff] font-bold p-4 hidden list-none overflow-hidden rounded-lg border-none bg-[#414141] shadow-lg [&[data-te-dropdown-show]]:block"
-                        aria-labelledby="dropdownMenu"
-                        data-te-dropdown-menu-ref
-                      >
-                        {subdomainList.map((item) => (
-                          <li className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg">
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  ) : (
-                    <button className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#9d9d9d] flex justify-center items-center p-2 rounded-xl">
-                      You Have No Domains
-                    </button>
-                  )}
+                  <button
+                    className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#9d9d9d] flex justify-center items-center p-2 rounded-xl"
+                    data-te-dropdown-toggle-ref
+                  >
+                    {primary}
+                  </button>
+                  <ul
+                    className="absolute w-full z-[1000] text-[#fff] font-bold p-4 hidden list-none overflow-hidden rounded-lg border-none bg-[#414141] shadow-lg [&[data-te-dropdown-show]]:block"
+                    aria-labelledby="dropdownMenu"
+                    data-te-dropdown-menu-ref
+                  >
+                    <li className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg">
+                      cryptodaddy.inu
+                    </li>
+                    <li className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg">
+                      snshypper.inu
+                    </li>
+                    <li className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg">
+                      100xmisser.inu
+                    </li>
+                    <li className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg">
+                      elonenjoyer420.inu
+                    </li>
+                    <li className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg">
+                      fomoguy65.inu
+                    </li>
+                    <li className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg">
+                      paperhands69.inu
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
-
             {/* input */}
             <div className="flex mt-1 justify-center text-center items-center w-full">
               <input
@@ -351,74 +318,123 @@ const User = () => {
           </div>
         )}
 
-        {/* Subdomain title */}
-        {primaryDomain !== "" ? (
-          <h2 className="flex text-[#ffffff] text-4xl font-bold mb-2 mt-20 text-center">
-            Your subdomains for:{" "}
-            <div className="">
-              <div className="flex justify-center w-[200px]">
-                <div className="w-[90%] text-lg">
-                  <div
-                    className="relative"
-                    data-te-dropdown-ref
+        <h2 className="flex text-[#ffffff] text-4xl font-bold mb-2 mt-20 text-center">
+          Your subdomains
+        </h2>
+
+        {/* subdomains List */}
+
+        <div className="max-w-4xl rounded flex items-center justify-end w-full font-bold text-lg py-2 bg-[#c6c6c600] mt-10">
+          <button className="bg-[#464646] rounded p-2 text-white">
+            New Subdomain +
+          </button>
+
+          <div className="">
+            <div className="flex justify-center w-[200px]">
+              <div className="w-[90%]">
+                <div
+                  className="relative"
+                  data-te-dropdown-ref
+                >
+                  <button
+                    className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl"
+                    data-te-dropdown-toggle-ref
                   >
-                    <button
-                      className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl"
-                      data-te-dropdown-toggle-ref
+                    {primary}
+                  </button>
+                  <ul
+                    className="absolute w-full z-[1000] text-[#ededed] font-bold p-4 hidden list-none overflow-hidden rounded-lg border-none bg-[#8b8b8b] shadow-lg [&[data-te-dropdown-show]]:block"
+                    aria-labelledby="dropdownMenu"
+                    data-te-dropdown-menu-ref
+                  >
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
                     >
-                      {primaryDomain}
-                    </button>
-                    <ul
-                      className="absolute w-full z-[1000] text-[#ededed] font-bold p-4 hidden list-none overflow-hidden rounded-lg border-none bg-[#8b8b8b] shadow-lg [&[data-te-dropdown-show]]:block"
-                      aria-labelledby="dropdownMenu"
-                      data-te-dropdown-menu-ref
+                      cryptodaddy.inu
+                    </li>
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
                     >
-                      {userDomains?.map((item) => (
-                        <li
-                          onClick={changePrimary}
-                          className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
-                        >
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                      snshypper.inu
+                    </li>
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                    >
+                      100xmisser.inu
+                    </li>
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                    >
+                      elonenjoyer420.inu
+                    </li>
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                    >
+                      fomoguy65.inu
+                    </li>
+                    <li
+                      onClick={changePrimary}
+                      className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                    >
+                      paperhands69.inu
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>
-          </h2>
-        ) : (
-          <div className="flex flex-col items-center">
-            <h2 className="flex text-[#ffffff] text-4xl font-bold mb-2 mt-20 text-center">
-              You Have No Domains
-            </h2>
-            <div className="bg-white w-[400px] flex justify-center items-center rounded-xl mt-10 mb-20 h-[200px]">
-              Error Message here
-            </div>
           </div>
-        )}
-
-        {/* subdomains List */}
-        {primaryDomain !== "" && (
-          <>
-            <div className="max-w-4xl rounded flex items-center justify-end w-full font-bold text-lg py-2 bg-[#c6c6c600] mt-10">
-              <button
-                onClick={() => setNewSubModal(true)}
-                className="bg-[#464646] mr-4 rounded p-2 text-white"
-              >
-                New Subdomain +
-              </button>
-            </div>
-            <ul className="mt-2 mb-20 max-w-4xl flex justify-center flex-wrap gap-2">
-              {subdomainList.map((item) => (
-                <SubDomainlistItem
-                  parent={currentDomain}
-                  sub={item}
-                />
-              ))}
-            </ul>
-          </>
-        )}
+        </div>
+        <ul className="mt-2 mb-20 max-w-4xl flex justify-center flex-wrap gap-2">
+          <SubDomainlistItem
+            parent="domain"
+            sub="dev"
+          />
+          <SubDomainlistItem
+            parent="domain"
+            sub="marketing"
+          />{" "}
+          <SubDomainlistItem
+            parent="domain"
+            sub="airdrop"
+          />{" "}
+          <SubDomainlistItem
+            parent="domain"
+            sub="vault"
+          />{" "}
+          <SubDomainlistItem
+            parent="domain"
+            sub="cto"
+          />{" "}
+          <SubDomainlistItem
+            parent="domain"
+            sub="ceo"
+          />{" "}
+          <SubDomainlistItem
+            parent="domain"
+            sub="liquidity"
+          />{" "}
+          <SubDomainlistItem
+            parent="domain"
+            sub="burn"
+          />{" "}
+          <SubDomainlistItem
+            parent="domain"
+            sub="vested"
+          />{" "}
+          <SubDomainlistItem
+            parent="domain"
+            sub="presale"
+          />{" "}
+          <SubDomainlistItem
+            parent="domain"
+            sub="casino"
+          />{" "}
+        </ul>
       </div>
       <Link to="/">
         <button className="fixed right-12 bottom-12 text-xl font-bold bg-white p-3 rounded-lg">

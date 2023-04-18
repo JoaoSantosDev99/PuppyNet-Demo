@@ -25,35 +25,23 @@ const Header = () => {
       <div className="flex flex-col gap-1 w-full justify-center items-center">
         <div className="max-w-screen-2xl w-full flex justify-center items-center p-2 rounded-xl bg-[#252b2fe3]">
           <ul className="flex gap-2">
-            <li className="bg-[#4847C9] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold">
-              Telegram
-            </li>
-            <li className="bg-[#4847C9] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold">
-              Twitter
-            </li>
-            <li className="bg-[#4847C9] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold">
-              Puppynet
-            </li>
+            <li className="bg-[#c1c1c1] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold"></li>
+            <li className="bg-[#c1c1c1] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold"></li>
+            <li className="bg-[#c1c1c1] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold"></li>
           </ul>
 
           <h1>
             <Link to="/">
-              <div className="flex w-32 h-24 mx-5 rounded-2xl bg-white font-bold text-xl justify-center items-center">
-                Logo
-              </div>
+              <div className="flex w-32 h-24 mx-5 rounded-2xl bg-white font-bold text-xl justify-center items-center"></div>
             </Link>
           </h1>
 
           <ul className="flex gap-2">
-            <li className="bg-[#4847C9] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold">
-              About
-            </li>
-            <li className="bg-[#4847C9] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold">
-              Bridge
-            </li>
-            <li className="bg-[#4847C9] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold">
-              Docs
-            </li>
+            <ul className="flex gap-2">
+              <li className="bg-[#c1c1c1] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold"></li>
+              <li className="bg-[#c1c1c1] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold"></li>
+              <li className="bg-[#c1c1c1] min-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#e7e7e7] font-bold"></li>
+            </ul>
           </ul>
         </div>
         <div className="max-w-screen-2xl bg-[#c3ff43f0] font-bold w-full flex justify-center items-center p-2 rounded-xl">

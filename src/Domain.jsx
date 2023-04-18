@@ -10,8 +10,10 @@ import registryAbi from "./contracts/registry_abi.json";
 
 import SubDomainlistItem from "./components/UI/SubdomainItem";
 import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const Domain = ({ domain }) => {
+  const { id } = useParams();
   const { data: signer } = useSigner();
   const { address, isConnected } = useAccount();
 
@@ -35,7 +37,7 @@ const Domain = ({ domain }) => {
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true);
-      const data = await readRegistry.registry(domain);
+      const data = await readRegistry.registry(id);
       setDomainOwner(addressShortener(data.owner));
       setRegistrarAdd(data.registrar);
       console.table({ owner: data.owner, registrar: data.registrar });
@@ -56,7 +58,7 @@ const Domain = ({ domain }) => {
     fetchInitialData();
   }, []);
 
-  console.log(domain);
+  console.log(id);
 
   return (
     <section className="w-full flex justify-center">
@@ -66,7 +68,7 @@ const Domain = ({ domain }) => {
         <div className="mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
           <div className="w-36 p-2 h-36 rounded-xl bg-[#fdfdfd] border-2 border-[#919191]"></div>
           <h2 className="p-2 rounded-xl bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
-            {domain}.inu
+            {id}.inu
           </h2>
           {/* <span className="text-[#b3fb7b] text-lg italic">shibarium.com</span> */}
 
@@ -98,7 +100,7 @@ const Domain = ({ domain }) => {
               {subdomainList.length !== 0 ? (
                 subdomainList.map((item) => (
                   <SubDomainlistItem
-                    parent={domain}
+                    parent={id}
                     sub={item}
                   />
                 ))
