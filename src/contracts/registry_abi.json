@@ -73,17 +73,61 @@
     "type": "function"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
-        "internalType": "string",
+        "indexed": true,
+        "internalType": "bytes32",
         "name": "_domain",
-        "type": "string"
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_prevOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "DomainTransfer",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_domain",
+        "type": "bytes32"
       }
     ],
     "name": "newDomain",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "_domain",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "name": "NewDomainCreated",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -102,6 +146,25 @@
       }
     ],
     "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "_owner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "_domain",
+        "type": "bytes32"
+      }
+    ],
+    "name": "PrimaryDomainSet",
     "type": "event"
   },
   {
@@ -183,9 +246,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "_domain",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "name": "setPrimaryDomain",
@@ -276,9 +339,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "_domain",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "name": "checkAvailable",
@@ -391,9 +454,9 @@
     "name": "primaryDomain",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -402,9 +465,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "name": "registry",
@@ -460,9 +523,9 @@
     "name": "TLD",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -522,9 +585,9 @@
     "name": "tokenToDomain",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bytes32",
         "name": "",
-        "type": "string"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",

@@ -12,13 +12,13 @@ body {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  background-color: #121820;
+  background-color: #000000;
   font-family: "Chakra Petch", sans-serif;
 }
 
 ::selection {
   color: rgb(3, 3, 3);
-  background-color: #c9ff59;
+  background-color: #ffffff;
 }
 
 /* width */

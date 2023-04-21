@@ -14,8 +14,6 @@ import NewSubdomainModal from "./components/UI/NewSubdomain";
 import Loading from "./components/UI/LoadingAnimation/Loading";
 
 const User = () => {
-  const { id } = useParams();
-
   const { address, isConnected } = useAccount();
   const [primary, setprimary] = useState("cryptodaddy.inu");
   // real primary domain
@@ -25,9 +23,10 @@ const User = () => {
   const [newSubModal, setNewSubModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [subdomainList, setSubdomainList] = useState([]);
-  const [currentDomain, setCurrentDomain] = useState();
+  const [displayDomain, setDisplayDomain] = useState();
   const [userDomains, setUserDomains] = useState([]);
   const [userDomainsAmount, setUserDomainsAmount] = useState(0);
+  const [registrarAdd, setRegistrarAdd] = useState("");
 
   const { data: signer } = useSigner();
 
@@ -35,8 +34,7 @@ const User = () => {
     "https://rpc.ankr.com/eth_goerli"
   );
 
-  const registryAdd = "0x7A3Bf49274C893De0122eaDA97BFb572288B94fC";
-  let registrarAdd = "0x8A3Bf49274C893De0122eaDA97BFb572288B94fC";
+  const registryAdd = "0x211DB1D98C0949416eF78252f95D1c440744bC7E";
 
   const readRegistryContract = new ethers.Contract(
     registryAdd,
@@ -46,150 +44,171 @@ const User = () => {
 
   useEffect(() => {
     const fetchInitialData = async () => {
-      console.log("address", address);
       const balance = await readRegistryContract.balanceOf(address);
       const formatedBalance = ethers.utils.formatUnits(balance, 0);
-      const primaryDom = await readRegistryContract.primaryDomain(address);
+
       const primDom = await readRegistryContract.primaryDomain(address);
 
-      console.log("primDom", primDom);
       const add = await readRegistryContract.registry(primDom);
-      console.log("primDom", add.registrar);
+      const registrarAdd = add.registrar;
 
-      const readRegistrarContract = new ethers.Contract(
-        add.registrar,
-        registrarAbi,
-        staticProvider
-      );
+      console.log("registrar add on fetch", registrarAdd);
+      console.log("balance", formatedBalance);
 
-      if (add.registrar !== "0x0000000000000000000000000000000000000000") {
-        const allSubdomains = await readRegistrarContract.getAllSubDomains();
-        setSubdomainList(allSubdomains);
+      const userDomainsFetch = [];
+      for (let i = 0; i < formatedBalance; i++) {
+        const token = await readRegistryContract.tokenOfOwnerByIndex(
+          address,
+          i
+        );
+        const data = await readRegistryContract.tokenToDomain(token);
+        userDomainsFetch.push(ethers.utils.parseBytes32String(data));
       }
 
-      setPrimaryDomain(primaryDom);
-      setCurrentDomain(primaryDom);
-      setUserDomains();
+      setPrimaryDomain(ethers.utils.parseBytes32String(primDom));
+      setDisplayDomain(ethers.utils.parseBytes32String(primDom));
+      setUserDomains(userDomainsFetch);
       setUserDomainsAmount(formatedBalance);
+
+      if (true) {
+        const registryContract = new ethers.Contract(
+          registryAdd,
+          registryAbi,
+          staticProvider
+        );
+
+        const info = await registryContract.registry(primDom);
+        console.log("registrar add", info.registrar);
+
+        setRegistrarAdd(info.registrar);
+
+        const readRegistrarContract = new ethers.Contract(
+          info.registrar,
+          registrarAbi,
+          staticProvider
+        );
+
+        const allSubdomains = await readRegistrarContract.getAllSubDomains();
+        const formated = allSubdomains.map((item) =>
+          ethers.utils.parseBytes32String(item)
+        );
+        console.log("formated", allSubdomains);
+        setSubdomainList(formated);
+      }
     };
-    setTimeout(() => {
-      fetchAllUserDomains();
-    }, 2000);
 
     fetchInitialData();
   }, []);
 
-  const changePrimary = (e) => {
-    setprimary(e.target.textContent);
+  const changePrimary = async (e) => {
+    const registryContract = new ethers.Contract(
+      registryAdd,
+      registryAbi,
+      signer
+    );
+
+    const parsedText = ethers.utils.formatBytes32String(e.target.textContent);
+    try {
+      const changePrim = await registryContract.setPrimaryDomain(parsedText);
+      await changePrim.wait();
+      alert("Primary Domain Changed!");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  // const fetchSubdomains = async () => {};
+  const changeDisplayDomain = (e) => {
+    console.log(e.target.textContent);
+    setDisplayDomain(e.target.textContent);
+    fetchSubdomains(e.target.textContent);
+  };
 
-  const fetchAllUserDomains = async () => {
-    const domainsArray = [];
+  const fetchSubdomains = async (domain) => {
+    const registryContract = new ethers.Contract(
+      registryAdd,
+      registryAbi,
+      signer
+    );
 
-    for (let i = 0; i < userDomainsAmount; i++) {
-      const rawDomainId = await readRegistryContract.tokenOfOwnerByIndex(
-        address,
-        i
-      );
-      const domainId = ethers.utils.formatUnits(rawDomainId, 0);
+    const parsedText = ethers.utils.formatBytes32String(domain);
+    const info = await registryContract.registry(parsedText);
 
-      const domainName = await readRegistryContract.tokenToDomain(
-        domainId.toString()
-      );
-      domainsArray.push(domainName);
-    }
+    setRegistrarAdd(info.registrar);
+    const readRegistrarContract = new ethers.Contract(
+      info.registrar,
+      registrarAbi,
+      staticProvider
+    );
 
-    setUserDomains(domainsArray);
+    const allSubdomains = await readRegistrarContract.getAllSubDomains();
+    const formated = allSubdomains.map((item) =>
+      ethers.utils.parseBytes32String(item)
+    );
+
+    setSubdomainList(formated);
   };
 
   return (
     <section className="w-full flex justify-center">
-      {newSubModal && <NewSubdomainModal setVisibility={setNewSubModal} />}
+      {newSubModal && (
+        <NewSubdomainModal
+          signer={signer}
+          registrarAdd={registrarAdd}
+          setVisibility={setNewSubModal}
+        />
+      )}
+
+      {}
+
       {isLoading && <Loading />}
       <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
-        {/* Avatar */}
+        {/* Top row */}
+        <div className=" mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
+          <div className="flex gap-2">
+            {/* Avatar group */}
+            <div className="flex gap-2">
+              {/* Avatar */}
+              <div className="w-44 p-2 h-44 rounded-xl bg-[#fdfdfd] border-2 border-[#919191]"></div>
 
-        <div className="mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
-          <div className="w-36 p-2 h-36 rounded-xl bg-[#fdfdfd] border-2 border-[#919191]"></div>
-          <h2 className="p-2 rounded-xl bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
-            {primaryDomain !== "" ? primaryDomain : longAddressCrop(address)}
-          </h2>
+              {/* Domain and Description */}
+              <div className="flex flex-col max-w-xs">
+                {/* Primary */}
+                <h2 className="p-2 rounded-xl bg-white w-[250px] flex justify-center items-center font-bold text-2xl">
+                  {primaryDomain !== ""
+                    ? primaryDomain
+                    : addressShortener(address)}
+                </h2>
 
-          {/* Description */}
-          <p className="max-w-lg text-center mt-5 text-white font-bold">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates,
-            ad ab impedit, veritatis aliquid similique consectetur fugit maxime
-            ducimus, enim neque voluptatum sequi. Dicta nisi quibusdam
-            voluptatum ab error delectus?
-          </p>
-
-          {/* Primary */}
-          <div className="w-96 mt-10 rounded-xl flex flex-col gap-1 justify-center items-center">
-            <div className="flex justify-center w-full">
-              <div className="w-[90%]">
-                <div
-                  className="relative"
-                  data-te-dropdown-ref
-                >
-                  {primaryDomain !== "" ? (
-                    <>
-                      <button
-                        className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl"
-                        data-te-dropdown-toggle-ref
-                      >
-                        {primaryDomain}
-                      </button>
-                      <ul
-                        className="absolute w-full z-[1000] text-[#ededed] font-bold p-4 hidden list-none overflow-hidden rounded-lg border-none bg-[#8b8b8b] shadow-lg [&[data-te-dropdown-show]]:block"
-                        aria-labelledby="dropdownMenu"
-                        data-te-dropdown-menu-ref
-                      >
-                        {console.log("dom b5", userDomains)}
-                        {userDomains?.map((item) => (
-                          <li
-                            // onClick={changePrimary}
-                            className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
-                          >
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  ) : (
-                    <button className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl">
-                      No Domains
-                    </button>
-                  )}
-                </div>
+                {/* Description */}
+                <p className="max-w-[250px] text-center mt-2 text-white font-bold">
+                  Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                  Officiis veritatis dicta esse nobis asperiores, odio molestias
+                  aspernatur amet modi, ullam
+                </p>
               </div>
             </div>
-            <h3 className="text-md font-sans text-[#58ff5e] font-bold text-center">
-              Select Primary Domain
-            </h3>
+
+            {/* Generic Info Card */}
+            <div className="flex flex-col flex-wrap justify-center items-center gap-1">
+              <ul className="bg-[#c3c3c3] text-center flex justify-center text-[#000000] w-[350px] h-32 flex-col text-lg sm:text-xl font-bold p-3 rounded-xl">
+                <li>
+                  Primary: {primaryDomain === "" ? "not set" : primaryDomain}
+                </li>
+                <li>Website: shibarium.com</li>
+                <li>SNS Balance: 100.000</li>
+              </ul>
+              <button
+                onClick={() => setUpdateUserData(true)}
+                className="w-full font-bold bg-[#989898] p-2 rounded-lg"
+              >
+                Edit Personal Data
+              </button>
+            </div>
           </div>
         </div>
 
+        {/* Bottom row */}
         <div className="flex flex-wrap justify-center gap-5 max-w-7xl w-full">
-          {/* Data */}
-          <div className="flex flex-col flex-wrap justify-center items-center gap-1">
-            <ul className="bg-[#c3c3c3] text-center flex justify-center text-[#000000] w-[350px] h-36 flex-col text-lg sm:text-xl font-bold p-3 rounded-xl">
-              <li>
-                Primary: {primaryDomain === "" ? "not set" : primaryDomain}
-              </li>
-              <li>Website: shibarium.com</li>
-              <li>SNS Balance: 100.000</li>
-            </ul>
-            <button
-              onClick={() => setUpdateUserData(true)}
-              className="w-full font-bold bg-[#989898] p-2 rounded-lg"
-            >
-              Edit Personal Data
-            </button>
-          </div>
-
-          {/* Transfer Domain */}
           <div className="flex flex-col bg-[#8b8b8b] w-[400px] justify-center items-center p-2 rounded-xl">
             {/* Dropdown */}
 
@@ -202,27 +221,53 @@ const User = () => {
                 >
                   {primaryDomain !== "" ? (
                     <>
-                      <button
-                        className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#9d9d9d] flex justify-center items-center p-2 rounded-xl"
-                        data-te-dropdown-toggle-ref
-                      >
-                        {subdomainList[0]}
-                      </button>
+                      <>
+                        {subdomainList.length === 0 ? (
+                          <button
+                            className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#9d9d9d] flex justify-center items-center p-2 rounded-xl"
+                            data-te-dropdown-toggle-ref
+                          >
+                            You have no subdomains yet.
+                          </button>
+                        ) : (
+                          <button
+                            className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#9d9d9d] flex justify-center items-center p-2 rounded-xl"
+                            data-te-dropdown-toggle-ref
+                          >
+                            {subdomainList[0]}
+                          </button>
+                        )}
+                      </>
+
                       <ul
                         className="absolute w-full z-[1000] text-[#fff] font-bold p-4 hidden list-none overflow-hidden rounded-lg border-none bg-[#414141] shadow-lg [&[data-te-dropdown-show]]:block"
                         aria-labelledby="dropdownMenu"
                         data-te-dropdown-menu-ref
                       >
-                        {subdomainList.map((item) => (
-                          <li className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg">
-                            {item}
-                          </li>
-                        ))}
+                        {subdomainList.length === 0 ? (
+                          <button
+                            className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#9d9d9d] flex justify-center items-center p-2 rounded-xl"
+                            data-te-dropdown-toggle-ref
+                          >
+                            Not subdomains set
+                          </button>
+                        ) : (
+                          <>
+                            {subdomainList.map((item) => (
+                              <li
+                                key={item}
+                                className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                              >
+                                {item}
+                              </li>
+                            ))}
+                          </>
+                        )}
                       </ul>
                     </>
                   ) : (
                     <button className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#9d9d9d] flex justify-center items-center p-2 rounded-xl">
-                      You Have No Domains
+                      You Have No Subdomains
                     </button>
                   )}
                 </div>
@@ -243,6 +288,66 @@ const User = () => {
             <button className="p-2 font-bold rounded-lg mt-4 text-white bg-[#323232] flex">
               Transfer Subdomain
             </button>
+          </div>
+
+          {/* Change primary domain */}
+          <div className="flex bg-white py-2 rounded-md w-96 flex-col items-center gap-1">
+            <div className="bg-[#b2b2b2] p-2 w-[90%] rounded-xl flex flex-col gap-1 justify-center items-center">
+              <h3 className="text-xl font-sans text-[#090909] font-bold text-center">
+                Change Primary Domain
+              </h3>
+              <div className="flex justify-center w-full">
+                <div className="w-[100%]">
+                  <div
+                    className="relative"
+                    data-te-dropdown-ref
+                  >
+                    {primaryDomain !== "" ? (
+                      <>
+                        <button
+                          className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl"
+                          data-te-dropdown-toggle-ref
+                        >
+                          {primaryDomain}
+                        </button>
+                        <ul
+                          className="absolute w-full z-[1000] text-[#ededed] font-bold p-4 hidden list-none overflow-hidden rounded-lg border-none bg-[#8b8b8b] shadow-lg [&[data-te-dropdown-show]]:block"
+                          aria-labelledby="dropdownMenu"
+                          data-te-dropdown-menu-ref
+                        >
+                          {userDomains
+                            ?.filter((item) => item !== primaryDomain)
+                            .map((item) => (
+                              <li
+                                onClick={changePrimary}
+                                className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                              >
+                                {item}
+                              </li>
+                            ))}
+                        </ul>
+                      </>
+                    ) : (
+                      <button className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl">
+                        No Domains
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button className="gap-2 w-[90%] px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl">
+              Transfer a Domain
+            </button>
+
+            <Link
+              to="/"
+              className="w-full flex justify-center"
+            >
+              <button className="w-[90%] px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl">
+                Buy new domain
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -366,7 +471,7 @@ const User = () => {
                       className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl"
                       data-te-dropdown-toggle-ref
                     >
-                      {primaryDomain}
+                      {displayDomain}
                     </button>
                     <ul
                       className="absolute w-full z-[1000] text-[#ededed] font-bold p-4 hidden list-none overflow-hidden rounded-lg border-none bg-[#8b8b8b] shadow-lg [&[data-te-dropdown-show]]:block"
@@ -375,7 +480,7 @@ const User = () => {
                     >
                       {userDomains?.map((item) => (
                         <li
-                          onClick={changePrimary}
+                          onClick={changeDisplayDomain}
                           className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
                         >
                           {item}
@@ -410,12 +515,20 @@ const User = () => {
               </button>
             </div>
             <ul className="mt-2 mb-20 max-w-4xl flex justify-center flex-wrap gap-2">
-              {subdomainList.map((item) => (
-                <SubDomainlistItem
-                  parent={currentDomain}
-                  sub={item}
-                />
-              ))}
+              {subdomainList.length === 0 ? (
+                <h2 className="bg-white px-5 py-4 rounded-md text-xl">
+                  You have no subdomains for{" "}
+                  <span className="font-bold">{displayDomain}</span>
+                </h2>
+              ) : (
+                subdomainList.map((item) => (
+                  <SubDomainlistItem
+                    key={item}
+                    parent={displayDomain}
+                    sub={item}
+                  />
+                ))
+              )}
             </ul>
           </>
         )}

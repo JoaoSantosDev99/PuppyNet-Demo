@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import ConnectButton from "./components/UI/ConnectButton";
-
 import { useWeb3Modal } from "@web3modal/react";
 import { Link, NavLink } from "react-router-dom";
 import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
@@ -12,13 +11,15 @@ import registryAbi from "./contracts/registry_abi.json";
 const Home = ({ setter }) => {
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();
-  const registryAddress = "0x7A3Bf49274C893De0122eaDA97BFb572288B94fC";
+  const registryAddress = "0x211DB1D98C0949416eF78252f95D1c440744bC7E";
 
   const [inputText, setInputText] = useState("");
   const [available, setAvailable] = useState(true);
+  const [filterText, setFilterText] = useState("");
   const [totalDomains, setTotalDomains] = useState(0);
   const [domainList, setDomainList] = useState([]);
   const [primaryDomain, setPrimaryDomain] = useState("");
+
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth_goerli"
   );
@@ -40,8 +41,8 @@ const Home = ({ setter }) => {
   );
 
   const connectWallet = () => {
-    if (chain?.id !== 1) {
-      switchNetwork?.(1);
+    if (chain?.id !== 5) {
+      switchNetwork?.(5);
     }
     try {
       open();
@@ -54,18 +55,29 @@ const Home = ({ setter }) => {
     validateAddress(
       e.target.value
         .replace(".", "")
-        .replace(/[^a-zA-Z0-9 ]/g, "")
-        .toLowerCase()
+        .replace(/[^a-z0-9 ]/g, "")
         .trim()
     );
 
     setInputText(
       e.target.value
         .replace(".", "")
+        .replace(/[^a-z0-9 ]/g, "")
+        .trim()
+        .slice(0, 32)
+    );
+  };
+
+  const handleFilterText = (e) => {
+    setFilterText(
+      e.target.value
+        .replace(".", "")
         .replace(/[^a-zA-Z0-9 ]/g, "")
         .toLowerCase()
         .trim()
     );
+
+    console.log(filterText);
   };
 
   const validateAddress = async (text) => {
@@ -84,7 +96,9 @@ const Home = ({ setter }) => {
     }
 
     try {
-      const newDomain = await registryContract.newDomain(inputText);
+      const parsedText = ethers.utils.formatBytes32String(inputText);
+      console.log("parsed", parsedText);
+      const newDomain = await registryContract.newDomain(parsedText);
       await newDomain.wait();
       alert("New Domain Created!");
     } catch (error) {
@@ -103,13 +117,6 @@ const Home = ({ setter }) => {
       const rawTotalSupply = await readRegistryContract.totalSupply();
       const totalSupply = ethers.utils.formatUnits(rawTotalSupply, 0);
 
-      if (isConnected) {
-        const name = await readRegistryContract.primaryDomain(address);
-
-        setPrimaryDomain(name);
-        console.log("name", name);
-      }
-
       setTotalDomains(totalSupply);
       console.log("Total supply:", totalSupply);
 
@@ -117,11 +124,14 @@ const Home = ({ setter }) => {
       for (let i = 0; i < totalSupply; i++) {
         const owner = await readRegistryContract.ownerOf(i);
         const domain = await readRegistryContract.tokenToDomain(i);
-        totalData.push({ owner: owner, domain: domain });
+        totalData.push({
+          owner: owner,
+          domain: ethers.utils.parseBytes32String(domain),
+        });
       }
 
       setDomainList(totalData);
-      console.log(totalData);
+      console.log("Total data:", totalData);
     };
 
     fetchInitialData();
@@ -129,7 +139,7 @@ const Home = ({ setter }) => {
 
   return (
     <section className="w-full flex justify-center">
-      <div className="max-w-screen-2xl w-full flex flex-col items-center ">
+      <div className="max-w-screen-2xl min-h-[90vh] w-full flex flex-col items-center ">
         {/* Connect Button */}
 
         {/* Purchase new domain */}
@@ -140,8 +150,8 @@ const Home = ({ setter }) => {
 
           <div className=" flex flex-col items-center mb-2">
             <input
-              value={inputText}
               spellCheck={false}
+              value={inputText}
               placeholder="mydomain.inu"
               onChange={handleInputText}
               type="text"
@@ -175,47 +185,55 @@ const Home = ({ setter }) => {
           </div>
         </div>
 
-        {/* Image */}
-        <div className="w-80 flex justify-center items-center bg-white h-80 mt-2 rounded-xl">
-          Image 2
-        </div>
-
         {/* User buttons */}
-        <div className="mt-5">
-          {isConnected ? (
-            <ConnectButton
-              title={
-                primaryDomain === ""
-                  ? longAddressCrop(address)
-                  : primaryDomain + ".inu"
-              }
-            />
-          ) : (
-            <div>
-              <div className="hidden md:flex">
-                <ConnectButton
-                  title="Connect Wallet"
-                  onClick={connectWallet}
-                />
-              </div>
-              <div className="md:hidden">
-                <ConnectButton
-                  title="Connect"
-                  onClick={connectWallet}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
         <Link
           onClick={checkBefore}
           to={signer && "/user"}
         >
-          <button className="bg-[#606060] mt-2 max-w-[120px] w-full flex justify-center items-center h-12 rounded-xl text-[#f8f8f8] font-bold p-2">
+          <button className="bg-[#ebebeb] mt-2 w-[320px] flex justify-center items-center h-12 rounded-xl text-[#000000] font-bold p-2">
             My Domains
           </button>
         </Link>
+
+        {/* Search For Domain */}
+        <div className=" flex flex-col items-center mt-20 mb-2">
+          <h2 className="text-white font-bold text-2xl">
+            Search for Specific Domain
+          </h2>
+          <input
+            spellCheck={false}
+            value={filterText}
+            placeholder="Search Domain"
+            onChange={handleFilterText}
+            type="text"
+            className="bg-[#ffffff] w-md mb-2 text-center placeholder:text-[#898989] text-[#000000] rounded-lg h-10 px-2 italic font-bold border-[2px] border-[#0e4f84] outline-none"
+          />
+          {inputText !== "" && (
+            <div>
+              {!available ? (
+                <span className="text-[#000000] font-bold flex justify-center items-center gap-2">
+                  Address already taken!
+                </span>
+              ) : (
+                <span className="text-[#ededed] font-bold flex justify-center items-center gap-2">
+                  {chain?.id !== 5 ? (
+                    "Please, connect or switch to Goerli."
+                  ) : (
+                    <div className="flex flex-col items-center">
+                      <span className="flex gap-1">{inputText}.inu</span>
+                      <button
+                        onClick={purchaseDomain}
+                        className="p-2 bg-[#000] rounded-lg"
+                      >
+                        purchase Domain
+                      </button>
+                    </div>
+                  )}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* Domains List */}
         <ul className="mt-20 mb-32 max-w-4xl flex flex-wrap gap-2">

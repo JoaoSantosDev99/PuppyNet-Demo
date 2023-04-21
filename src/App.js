@@ -16,7 +16,7 @@ function App() {
   const [domain, setDomain] = useState();
   const [totalDomains, setTotalDomains] = useState(0);
   const [domainList, setDomainList] = useState([]);
-  const registryAddress = "0x7A3Bf49274C893De0122eaDA97BFb572288B94fC";
+  const registryAddress = "0x211DB1D98C0949416eF78252f95D1c440744bC7E";
 
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth_goerli"
@@ -44,10 +44,10 @@ function App() {
       }
 
       setDomainList(totalData);
-      // console.log("app:", totalData);
+      console.log("app:", totalData);
     };
 
-    fetchInitialData();
+    // fetchInitialData();
   }, []);
 
   // useEffect(() => {

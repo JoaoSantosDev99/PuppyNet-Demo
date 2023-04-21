@@ -26,7 +26,7 @@ const Domain = ({ domain }) => {
     "https://rpc.ankr.com/eth_goerli"
   );
 
-  const registryAdd = "0x7A3Bf49274C893De0122eaDA97BFb572288B94fC";
+  const registryAdd = "0x211DB1D98C0949416eF78252f95D1c440744bC7E";
 
   const readRegistry = new ethers.Contract(
     registryAdd,
@@ -37,22 +37,28 @@ const Domain = ({ domain }) => {
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true);
-      const data = await readRegistry.registry(id);
-      setDomainOwner(addressShortener(data.owner));
-      setRegistrarAdd(data.registrar);
-      console.table({ owner: data.owner, registrar: data.registrar });
+      const formatedId = ethers.utils.formatBytes32String(id);
 
-      const readRegistrar = new ethers.Contract(
-        data.registrar,
-        registrarAbi,
-        staticProvider
-      );
+      try {
+        const data = await readRegistry.registry(formatedId);
+        setDomainOwner(addressShortener(data.owner));
+        setRegistrarAdd(data.registrar);
+        console.table({ owner: data.owner, registrar: data.registrar });
 
-      const subdomains = await readRegistrar.getAllSubDomains();
-      setSubdomainList(subdomains);
-      console.log(subdomains);
+        const readRegistrar = new ethers.Contract(
+          data.registrar,
+          registrarAbi,
+          staticProvider
+        );
 
-      setIsLoading(false);
+        const subdomains = await readRegistrar.getAllSubDomains();
+        setSubdomainList(subdomains);
+        console.log(subdomains);
+        setIsLoading(false);
+      } catch (error) {
+        console.log(error);
+        setIsLoading(false);
+      }
     };
 
     fetchInitialData();
@@ -64,7 +70,6 @@ const Domain = ({ domain }) => {
     <section className="w-full flex justify-center">
       <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
         {/* Avatar */}
-
         <div className="mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
           <div className="w-36 p-2 h-36 rounded-xl bg-[#fdfdfd] border-2 border-[#919191]"></div>
           <h2 className="p-2 rounded-xl bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
@@ -98,12 +103,14 @@ const Domain = ({ domain }) => {
           ) : (
             <>
               {subdomainList.length !== 0 ? (
-                subdomainList.map((item) => (
-                  <SubDomainlistItem
-                    parent={id}
-                    sub={item}
-                  />
-                ))
+                subdomainList
+                  .map((item) => ethers.utils.parseBytes32String(item))
+                  .map((item) => (
+                    <SubDomainlistItem
+                      parent={id}
+                      sub={item}
+                    />
+                  ))
               ) : (
                 <span className="font-bold text-center text-xl text-white">
                   No subdomains set yet...

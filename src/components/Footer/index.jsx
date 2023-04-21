@@ -5,9 +5,9 @@ import medium from "../../assets/icons/medium.png";
 
 const Footer = () => {
   return (
-    <footer className="w-full flex text-[#563d1c] justify-center">
-      <div className="max-w-screen-2xl rounded-xl mb-2 bg-[#23292D] w-full py-8 flex flex-col items-center">
-        <h2 className="font-bold text-[#a2e41d] text-2xl sm:text-4xl">
+    <footer className="w-full flex text-[#ffffff] text-2xl font-bold px-1 justify-center">
+      <div className="max-w-screen-2xl rounded-xl mb-2 bg-[#1e1e1e] w-full py-8 flex flex-col items-center">
+        {/* <h2 className="font-bold text-[#a2e41d] text-2xl sm:text-4xl">
           Shibarium Name Service
         </h2>
         <p className="text-[#a2e41d]">Every dog needs a name.</p>
@@ -43,7 +43,8 @@ const Footer = () => {
         </ul>
         <span className="font-medium italic text-[#4776fa]">
           &trade; Shibarium 2023, All Rights Reserved
-        </span>
+        </span> */}
+        Footer
       </div>
     </footer>
   );
