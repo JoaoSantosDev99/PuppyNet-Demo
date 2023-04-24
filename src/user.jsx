@@ -1,3 +1,4 @@
+import edit from "./assets/icons/edit.png";
 import down from "./assets/down.png";
 import profile from "./assets/profile.png";
 import { useEffect, useState } from "react";
@@ -12,6 +13,7 @@ import registrarAbi from "./contracts/registrar_abi.json";
 import { longAddressCrop } from "./utils";
 import NewSubdomainModal from "./components/UI/NewSubdomain";
 import Loading from "./components/UI/LoadingAnimation/Loading";
+import SubdomainInfo from "./components/UI/SubdomainInfo";
 
 const User = () => {
   const { address, isConnected } = useAccount();
@@ -27,6 +29,19 @@ const User = () => {
   const [userDomains, setUserDomains] = useState([]);
   const [userDomainsAmount, setUserDomainsAmount] = useState(0);
   const [registrarAdd, setRegistrarAdd] = useState("");
+  const [subdInfoVisibility, setSubdInfoVisibility] = useState(false);
+
+  const [domainImage, setdomainImage] = useState("");
+  const [domainDesc, setdomainDesc] = useState("");
+  const [domainWebs, setdomainWebs] = useState("");
+  const [domainEmail, setdomainEmail] = useState("");
+
+  const [popOwner, setPopOwner] = useState("");
+  const [popWebsite, setPopWebsite] = useState("");
+  const [popEmail, setPopEmail] = useState("");
+  const [popDesc, setPopDesc] = useState("");
+  const [popAvatar, setPopAvatar] = useState("");
+  const [popName, setPopName] = useState("");
 
   const { data: signer } = useSigner();
 
@@ -34,7 +49,7 @@ const User = () => {
     "https://rpc.ankr.com/eth_goerli"
   );
 
-  const registryAdd = "0x211DB1D98C0949416eF78252f95D1c440744bC7E";
+  const registryAdd = "0xC34Bb9A0A3419290fe0258a32a8f2500E127C780";
 
   const readRegistryContract = new ethers.Contract(
     registryAdd,
@@ -87,6 +102,13 @@ const User = () => {
           registrarAbi,
           staticProvider
         );
+
+        const ownerData = await readRegistrarContract.ownerInfo();
+
+        setdomainImage(ownerData.avatar);
+        setdomainDesc(ownerData.description);
+        setdomainWebs(ownerData.website);
+        setdomainEmail(ownerData.email);
 
         const allSubdomains = await readRegistrarContract.getAllSubDomains();
         const formated = allSubdomains.map((item) =>
@@ -148,6 +170,39 @@ const User = () => {
     setSubdomainList(formated);
   };
 
+  const handleSubDomDisplay = async (subdom) => {
+    const registryContract = new ethers.Contract(
+      registryAdd,
+      registryAbi,
+      staticProvider
+    );
+
+    const parsedDisplay = ethers.utils.formatBytes32String(displayDomain);
+    const info = await registryContract.registry(parsedDisplay);
+
+    const readRegistrarContract = new ethers.Contract(
+      info.registrar,
+      registrarAbi,
+      staticProvider
+    );
+
+    const parsedSubdom = ethers.utils.formatBytes32String(subdom);
+    const domainInfo = await readRegistrarContract.subDomainData(parsedSubdom);
+
+    setPopOwner(domainInfo.owner);
+    setPopWebsite(domainInfo.website);
+    setPopEmail(domainInfo.email);
+    setPopDesc(domainInfo.description);
+    setPopAvatar(domainInfo.avatar);
+    setPopName(subdom);
+
+    setSubdInfoVisibility(true);
+  };
+
+  const hadnleEditWebsite = () => {
+    console.log("website edit");
+  };
+
   return (
     <section className="w-full flex justify-center">
       {newSubModal && (
@@ -158,7 +213,18 @@ const User = () => {
         />
       )}
 
-      {}
+      {subdInfoVisibility && (
+        <SubdomainInfo
+          Owner={popOwner}
+          Webs={popWebsite}
+          Desc={popDesc}
+          Email={popEmail}
+          Avatar={popAvatar}
+          Name={popName}
+          key={popName}
+          setVisibility={setSubdInfoVisibility}
+        />
+      )}
 
       {isLoading && <Loading />}
       <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
@@ -168,7 +234,23 @@ const User = () => {
             {/* Avatar group */}
             <div className="flex gap-2">
               {/* Avatar */}
-              <div className="w-44 p-2 h-44 rounded-xl bg-[#fdfdfd] border-2 border-[#919191]"></div>
+              <div className="relative w-44 p-1 rounded-md flex justify-center items-center h-44 bg-[#222222] border-2 border-[#919191]">
+                <img
+                  src={domainImage}
+                  alt=""
+                  className="rounded-md"
+                />
+                <button
+                  className="absolute bottom-2 right-2 border p-[1px] rounded-md bg-[#e8e8e8] border-[#696969]"
+                  onClick={hadnleEditWebsite}
+                >
+                  <img
+                    src={edit}
+                    alt="pen"
+                    className="w-6 h-6"
+                  />
+                </button>
+              </div>
 
               {/* Domain and Description */}
               <div className="flex flex-col max-w-xs">
@@ -180,10 +262,20 @@ const User = () => {
                 </h2>
 
                 {/* Description */}
-                <p className="max-w-[250px] text-center mt-2 text-white font-bold">
-                  Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                  Officiis veritatis dicta esse nobis asperiores, odio molestias
-                  aspernatur amet modi, ullam
+                <p className="max-w-[250px] relative h-[120px] p-1 rounded-md bg-[#2d2d2d] text-center mt-2 text-white font-bold">
+                  {domainDesc === ""
+                    ? "Lorem ipsum, dolor sit amet consectetur adipisicing elit Officiis veritatis modi, ullam"
+                    : domainDesc}
+                  <button
+                    className="absolute bottom-2 right-2 border p-[1px] rounded-md bg-[#e8e8e8] border-[#696969]"
+                    onClick={hadnleEditWebsite}
+                  >
+                    <img
+                      src={edit}
+                      alt="pen"
+                      className="w-6 h-6"
+                    />
+                  </button>
                 </p>
               </div>
             </div>
@@ -191,17 +283,41 @@ const User = () => {
             {/* Generic Info Card */}
             <div className="flex flex-col flex-wrap justify-center items-center gap-1">
               <ul className="bg-[#c3c3c3] text-center flex justify-center text-[#000000] w-[350px] h-32 flex-col text-lg sm:text-xl font-bold p-3 rounded-xl">
-                <li>
-                  Primary: {primaryDomain === "" ? "not set" : primaryDomain}
+                <li className="flex justify-center items-center gap-2">
+                  Primary: {primaryDomain === "" ? "not set" : primaryDomain}{" "}
                 </li>
-                <li>Website: shibarium.com</li>
-                <li>SNS Balance: 100.000</li>
+                <li className="flex justify-center items-center gap-2">
+                  Website: {domainWebs === "" ? "not set" : domainWebs}{" "}
+                  <button
+                    className="border p-[1px] rounded-md bg-[#e8e8e8] border-[#696969]"
+                    onClick={hadnleEditWebsite}
+                  >
+                    <img
+                      src={edit}
+                      alt="pen"
+                      className="w-6 h-6"
+                    />
+                  </button>
+                </li>
+                <li className="flex text-sm justify-center items-center gap-2">
+                  Email: {domainEmail === "" ? "not set" : domainEmail}{" "}
+                  <button
+                    className="border p-[1px] rounded-md bg-[#e8e8e8] border-[#696969]"
+                    onClick={hadnleEditWebsite}
+                  >
+                    <img
+                      src={edit}
+                      alt="pen"
+                      className="w-6 h-6"
+                    />
+                  </button>
+                </li>
               </ul>
               <button
                 onClick={() => setUpdateUserData(true)}
                 className="w-full font-bold bg-[#989898] p-2 rounded-lg"
               >
-                Edit Personal Data
+                Edit all at once here
               </button>
             </div>
           </div>
@@ -523,6 +639,7 @@ const User = () => {
               ) : (
                 subdomainList.map((item) => (
                   <SubDomainlistItem
+                    onClick={() => handleSubDomDisplay(item)}
                     key={item}
                     parent={displayDomain}
                     sub={item}

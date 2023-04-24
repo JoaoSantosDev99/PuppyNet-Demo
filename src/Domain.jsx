@@ -11,6 +11,7 @@ import registryAbi from "./contracts/registry_abi.json";
 import SubDomainlistItem from "./components/UI/SubdomainItem";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import SubdomainInfo from "./components/UI/SubdomainInfo";
 
 const Domain = ({ domain }) => {
   const { id } = useParams();
@@ -22,11 +23,20 @@ const Domain = ({ domain }) => {
   const [domainOwner, setDomainOwner] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const [subdInfoVisibility, setSubdInfoVisibility] = useState(false);
+  const [displayDomain, setDisplayDomain] = useState();
+  const [popOwner, setPopOwner] = useState("");
+  const [popWebsite, setPopWebsite] = useState("");
+  const [popEmail, setPopEmail] = useState("");
+  const [popDesc, setPopDesc] = useState("");
+  const [popAvatar, setPopAvatar] = useState("");
+  const [popName, setPopName] = useState("");
+
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth_goerli"
   );
 
-  const registryAdd = "0x211DB1D98C0949416eF78252f95D1c440744bC7E";
+  const registryAdd = "0xC34Bb9A0A3419290fe0258a32a8f2500E127C780";
 
   const readRegistry = new ethers.Contract(
     registryAdd,
@@ -52,6 +62,7 @@ const Domain = ({ domain }) => {
         );
 
         const subdomains = await readRegistrar.getAllSubDomains();
+
         setSubdomainList(subdomains);
         console.log(subdomains);
         setIsLoading(false);
@@ -64,10 +75,52 @@ const Domain = ({ domain }) => {
     fetchInitialData();
   }, []);
 
-  console.log(id);
+  const handleSubDomDisplay = async (subdom) => {
+    console.log(subdom);
+
+    const registryContract = new ethers.Contract(
+      registryAdd,
+      registryAbi,
+      staticProvider
+    );
+
+    const parsedDisplay = ethers.utils.formatBytes32String(id);
+    const info = await registryContract.registry(parsedDisplay);
+
+    const readRegistrarContract = new ethers.Contract(
+      info.registrar,
+      registrarAbi,
+      staticProvider
+    );
+
+    const parsedSubdom = ethers.utils.formatBytes32String(subdom);
+    const domainInfo = await readRegistrarContract.subDomainData(parsedSubdom);
+
+    setPopOwner(domainInfo.owner);
+    setPopWebsite(domainInfo.website);
+    setPopEmail(domainInfo.email);
+    setPopDesc(domainInfo.description);
+    setPopAvatar(domainInfo.avatar);
+    setPopName(subdom);
+
+    setSubdInfoVisibility(true);
+  };
 
   return (
     <section className="w-full flex justify-center">
+      {subdInfoVisibility && (
+        <SubdomainInfo
+          Owner={popOwner}
+          Webs={popWebsite}
+          Desc={popDesc}
+          Email={popEmail}
+          Avatar={popAvatar}
+          Name={popName}
+          key={popName}
+          setVisibility={setSubdInfoVisibility}
+        />
+      )}
+
       <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
         {/* Avatar */}
         <div className="mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
@@ -107,7 +160,9 @@ const Domain = ({ domain }) => {
                   .map((item) => ethers.utils.parseBytes32String(item))
                   .map((item) => (
                     <SubDomainlistItem
-                      parent={id}
+                      onClick={() => handleSubDomDisplay(item)}
+                      key={item}
+                      parent={displayDomain}
                       sub={item}
                     />
                   ))

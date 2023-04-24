@@ -26,7 +26,7 @@ const Header = () => {
     }
   };
 
-  const registryAddress = "0x211DB1D98C0949416eF78252f95D1c440744bC7E";
+  const registryAddress = "0xC34Bb9A0A3419290fe0258a32a8f2500E127C780";
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth_goerli"
   );
