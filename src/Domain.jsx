@@ -12,6 +12,7 @@ import SubDomainlistItem from "./components/UI/SubdomainItem";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import SubdomainInfo from "./components/UI/SubdomainInfo";
+import EditSubdomModal from "./components/UI/EditSubdom";
 
 const Domain = ({ domain }) => {
   const { id } = useParams();
@@ -37,6 +38,10 @@ const Domain = ({ domain }) => {
   const [popAvatar, setPopAvatar] = useState("");
   const [popName, setPopName] = useState("");
 
+  const [editSubdomModalVis, setEditSubdomModalVis] = useState(false);
+  const [editSubdomTarget, setEditSubdomTarget] = useState("");
+  const [allowEdit, setAllowEdit] = useState(false);
+
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth_goerli"
   );
@@ -58,7 +63,6 @@ const Domain = ({ domain }) => {
         const data = await readRegistry.registry(formatedId);
         setDomainOwner(addressShortener(data.owner));
         setRegistrarAdd(data.registrar);
-        console.table({ owner: data.owner, registrar: data.registrar });
 
         const readRegistrar = new ethers.Contract(
           data.registrar,
@@ -73,10 +77,9 @@ const Domain = ({ domain }) => {
         setDomainDesc(ownerData.description);
         setDomainAvatar(ownerData.avatar);
         setDomainEmail(ownerData.email);
-        setDomainWebsite(ownerData.email);
+        setDomainWebsite(ownerData.website);
 
         setSubdomainList(subdomains);
-        console.log(subdomains);
         setIsLoading(false);
       } catch (error) {
         console.log(error);
@@ -88,7 +91,7 @@ const Domain = ({ domain }) => {
   }, []);
 
   const handleSubDomDisplay = async (subdom) => {
-    console.log(subdom);
+    setAllowEdit(false);
 
     const registryContract = new ethers.Contract(
       registryAdd,
@@ -107,6 +110,11 @@ const Domain = ({ domain }) => {
 
     const parsedSubdom = ethers.utils.formatBytes32String(subdom);
     const domainInfo = await readRegistrarContract.subDomainData(parsedSubdom);
+
+    if (address === domainInfo.owner) {
+      setAllowEdit(true);
+      setEditSubdomTarget(subdom);
+    }
 
     setPopOwner(domainInfo.owner);
     setPopWebsite(domainInfo.website);
@@ -129,43 +137,62 @@ const Domain = ({ domain }) => {
           Avatar={popAvatar}
           Name={popName}
           key={popName}
+          edit={allowEdit}
+          cardChanger={setEditSubdomModalVis}
           setVisibility={setSubdInfoVisibility}
+        />
+      )}
+
+      {editSubdomModalVis && (
+        <EditSubdomModal
+          setVisibility={setEditSubdomModalVis}
+          signer={signer}
+          registrarAdd={registrarAdd}
+          subdomain={editSubdomTarget}
         />
       )}
 
       <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
         {/* Avatar */}
         <div className="mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
-          <div className="w-36 h-36 rounded-md bg-[#fdfdfd] border-2 border-[#919191]">
-            <img
-              src={
-                domainAvatar !== ""
-                  ? domainAvatar
-                  : "https://imgs.search.brave.com/poNnaqRebxpPLTVSB0hS5am3GhVRCX5FtoJNhvc6aI8/rs:fit:300:300:1/g:ce/aHR0cHM6Ly9pMC53/cC5jb20vd3d3LnJl/cG9sLmNvcGwudWxh/dmFsLmNhL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDE5LzAxL2Rl/ZmF1bHQtdXNlci1p/Y29uLmpwZz9maXQ9/MzAwJTJDMzAw"
-              }
-              alt="avatar"
-              className="rounded-md"
-            />
+          <div className="flex items-center gap-2">
+            {/* Avatar */}
+            <div className="w-40 h-40 rounded-md bg-[#fdfdfd] border-2 border-[#919191]">
+              <img
+                src={
+                  domainAvatar !== ""
+                    ? domainAvatar
+                    : "https://imgs.search.brave.com/poNnaqRebxpPLTVSB0hS5am3GhVRCX5FtoJNhvc6aI8/rs:fit:300:300:1/g:ce/aHR0cHM6Ly9pMC53/cC5jb20vd3d3LnJl/cG9sLmNvcGwudWxh/dmFsLmNhL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDE5LzAxL2Rl/ZmF1bHQtdXNlci1p/Y29uLmpwZz9maXQ9/MzAwJTJDMzAw"
+                }
+                alt="avatar"
+                className="rounded-md"
+              />
+            </div>
+
+            {/* Domain and description */}
+            <div className="flex flex-col max-w-xs">
+              <h2 className="p-2 rounded-md bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
+                {id}.inu
+              </h2>
+              <p className="max-w-lg flex flex-wrap break-words overflow-y-auto justify-center items-center bg-[#242424] h-24 p-2 rounded-lg text-center mt-2 text-white font-bold">
+                {domainDesc === ""
+                  ? "No description available at the moment"
+                  : domainDesc}
+              </p>
+            </div>
           </div>
-          <h2 className="p-2 rounded-xl bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
-            {id}.inu
-          </h2>
-          {/* <span className="text-[#b3fb7b] text-lg italic">shibarium.com</span> */}
-          <span className="text-[#b3fb7b] text-lg italic">
-            Owner: {domainOwner}
-          </span>
-          <span className="text-[#b3fb7b] text-lg italic">
-            Website: {domainWebsite}
-          </span>
-          <span className="text-[#b3fb7b] text-lg italic">
-            Email: {domainEmail}
-          </span>
-          {/* Description */}
-          <p className="max-w-lg text-center mt-5 text-white font-bold">
-            {domainDesc === ""
-              ? "Lorem ipsum, dolor sit amet consectetur adipisicing elit Officiis veritatis modi, ullam"
-              : domainDesc}
-          </p>
+
+          <div className="flex flex-col items-center w-[360px] bg-[#d3d3d3] p-3 px-5 rounded-md">
+            <span className="text-[#353535] font-bold text-lg italic">
+              Owner: {domainOwner !== "" ? domainOwner : "Not set"}
+            </span>
+            <span className="text-[#353535] font-bold text-lg italic">
+              Website: {domainWebsite !== "" ? domainWebsite : "Not set"}
+            </span>
+            <span className="text-[#353535] font-bold text-lg italic">
+              Email: {domainEmail !== "" ? domainEmail : "Not set"}
+            </span>
+          </div>
         </div>
 
         <h2 className="flex text-[#ffffff] text-4xl font-bold mb-2 mt-20 text-center">

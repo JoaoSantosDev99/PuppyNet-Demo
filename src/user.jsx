@@ -15,6 +15,7 @@ import NewSubdomainModal from "./components/UI/NewSubdomain";
 import Loading from "./components/UI/LoadingAnimation/Loading";
 import SubdomainInfo from "./components/UI/SubdomainInfo";
 import EditOwnerInfoAll from "./components/UI/EditOwnerInfo";
+import EditSubdomModal from "./components/UI/EditSubdom";
 
 const User = () => {
   const { address, isConnected } = useAccount();
@@ -45,6 +46,14 @@ const User = () => {
   const [popDesc, setPopDesc] = useState("");
   const [popAvatar, setPopAvatar] = useState("");
   const [popName, setPopName] = useState("");
+
+  const [subdomainTarget, setSubdomainTarget] = useState("");
+  const [hasSubDomAlready, setHasSubDomAlready] = useState(false);
+  const [validAddr, setValidAddr] = useState(true);
+  const [currentSubdomain, setCurrentSubdomain] = useState("");
+
+  const [editSubdomModalVis, setEditSubdomModalVis] = useState(false);
+  const [editSubdomTarget, setEditSubdomTarget] = useState("");
 
   const { data: signer } = useSigner();
 
@@ -119,6 +128,7 @@ const User = () => {
         );
         console.log("formated", allSubdomains);
         setSubdomainList(formated);
+        setCurrentSubdomain(formated[0]);
       }
     };
 
@@ -227,6 +237,57 @@ const User = () => {
     setAllInfoOwnerModal(true);
   };
 
+  const handleSubdomainTranfer = async () => {
+    const parsedText = ethers.utils.formatBytes32String(currentSubdomain);
+
+    const registrarContract = new ethers.Contract(
+      registrarAdd,
+      registrarAbi,
+      signer
+    );
+
+    try {
+      const tranfer = await registrarContract.transferSubDomain(
+        parsedText,
+        subdomainTarget
+      );
+
+      await tranfer.wait();
+      alert("Subdomain tranfered");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleReceiverAddress = (e) => {
+    setHasSubDomAlready(false);
+
+    setSubdomainTarget(e.target.value);
+    setValidAddr(ethers.utils.isAddress(e.target.value));
+
+    checkHasDomain(e.target.value);
+  };
+
+  const checkHasDomain = async (text) => {
+    const primDom = await readRegistryContract.primaryDomain(address);
+
+    const info = await readRegistryContract.registry(primDom);
+
+    const readRegistrarContract = new ethers.Contract(
+      info.registrar,
+      registrarAbi,
+      staticProvider
+    );
+    const call = await readRegistrarContract.hasSubDomain(text);
+    setHasSubDomAlready(call);
+  };
+
+  const handleEditSubdom = (subdom) => {
+    console.log("edit", subdom);
+    setEditSubdomTarget(subdom);
+    setEditSubdomModalVis(true);
+  };
+
   return (
     <section className="w-full flex justify-center">
       {newSubModal && (
@@ -244,6 +305,15 @@ const User = () => {
           setVisibility={setAllInfoOwnerModal}
           domain={primaryDomain}
           condition={ownerCondition}
+        />
+      )}
+
+      {editSubdomModalVis && (
+        <EditSubdomModal
+          setVisibility={setEditSubdomModalVis}
+          signer={signer}
+          registrarAdd={registrarAdd}
+          subdomain={editSubdomTarget}
         />
       )}
 
@@ -360,11 +430,15 @@ const User = () => {
         {/* Bottom row */}
         <div className="flex flex-wrap justify-center gap-5 max-w-7xl w-full">
           <div className="flex flex-col bg-[#8b8b8b] w-[400px] justify-center items-center p-2 rounded-xl">
-            {/* Dropdown */}
-
             {/* primaryDomain !== "" */}
             <div className="flex justify-center w-full">
               <div className="w-[90%]">
+                <div className="w-full justify-center p-1 rounded-md bg-white text-center mb-3 mt-2">
+                  <h2>
+                    Sub domains of{" "}
+                    <span className="font-bold">{displayDomain}</span>
+                  </h2>
+                </div>
                 <div
                   className="relative"
                   data-te-dropdown-ref
@@ -384,7 +458,7 @@ const User = () => {
                             className="gap-2 w-full px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#9d9d9d] flex justify-center items-center p-2 rounded-xl"
                             data-te-dropdown-toggle-ref
                           >
-                            {subdomainList[0]}
+                            {currentSubdomain}
                           </button>
                         )}
                       </>
@@ -405,6 +479,7 @@ const User = () => {
                           <>
                             {subdomainList.map((item) => (
                               <li
+                                onClick={() => setCurrentSubdomain(item)}
                                 key={item}
                                 className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
                               >
@@ -427,6 +502,9 @@ const User = () => {
             {/* input */}
             <div className="flex mt-1 justify-center text-center items-center w-full">
               <input
+                spellCheck={false}
+                value={subdomainTarget}
+                onChange={handleReceiverAddress}
                 id="target"
                 placeholder="receiver address"
                 type="text"
@@ -434,8 +512,22 @@ const User = () => {
               />
             </div>
 
+            {hasSubDomAlready && (
+              <h2 className="mt-3 text-[#ff1010] font-semibold">
+                This address already has a subdomain!
+              </h2>
+            )}
+            {!validAddr && (
+              <h2 className="mt-3 text-[#ff1010] font-semibold">
+                Not a valid address
+              </h2>
+            )}
+
             {/* Transfer Button */}
-            <button className="p-2 font-bold rounded-lg mt-4 text-white bg-[#323232] flex">
+            <button
+              onClick={handleSubdomainTranfer}
+              className="p-2 font-bold rounded-lg mt-4 text-white bg-[#323232] flex"
+            >
               Transfer Subdomain
             </button>
           </div>
@@ -526,7 +618,7 @@ const User = () => {
                       {userDomains?.map((item) => (
                         <li
                           onClick={changeDisplayDomain}
-                          className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 hover:bg-[#a4a4a4] text-center px-2 rounded-lg"
+                          className="py-1 mb-1 cursor-pointer transition-all ease-in-out duration-150 text-center px-2 rounded-lg"
                         >
                           {item}
                         </li>
@@ -567,12 +659,24 @@ const User = () => {
                 </h2>
               ) : (
                 subdomainList.map((item) => (
-                  <SubDomainlistItem
-                    onClick={() => handleSubDomDisplay(item)}
-                    key={item}
-                    parent={displayDomain}
-                    sub={item}
-                  />
+                  <div className="relative">
+                    <SubDomainlistItem
+                      onClick={() => handleSubDomDisplay(item)}
+                      key={item}
+                      parent={displayDomain}
+                      sub={item}
+                    />
+                    <button
+                      className="absolute bottom-2 right-2 border p-[1px] rounded-md bg-[#e8e8e8] border-[#696969]"
+                      onClick={() => handleEditSubdom(item)}
+                    >
+                      <img
+                        src={edit}
+                        alt="pen"
+                        className="w-6 h-6"
+                      />
+                    </button>
+                  </div>
                 ))
               )}
             </ul>

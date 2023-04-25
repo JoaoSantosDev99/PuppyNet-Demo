@@ -83,9 +83,11 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
   const handleWebsChange = async (e) => {
     setWebsite(e.target.value);
   };
+
   const handleAvatcChange = async (e) => {
     setAvatar(e.target.value);
   };
+
   const handleEmailChange = async (e) => {
     setEmail(e.target.value);
   };
@@ -98,13 +100,6 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
   };
 
   const createNewSubdomain = async () => {
-    // console.log("new domain owner", newSubdomainOwner);
-    // console.log("new domain", newSubdomain);
-    // console.log("desc", description);
-    // console.log("email", email);
-    // console.log("avatar", avatar);
-    // console.log("website", website);
-
     const parsedText = ethers.utils.formatBytes32String(newSubdomain);
 
     if (signer === undefined) {

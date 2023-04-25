@@ -18,7 +18,6 @@ const Home = ({ setter }) => {
   const [filterText, setFilterText] = useState("");
   const [totalDomains, setTotalDomains] = useState(0);
   const [domainList, setDomainList] = useState([]);
-  const [primaryDomain, setPrimaryDomain] = useState("");
 
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth_goerli"

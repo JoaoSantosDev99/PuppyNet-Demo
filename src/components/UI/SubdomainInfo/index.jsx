@@ -3,6 +3,7 @@ import copy from "../../../assets/icons/copy.png";
 import check from "../../../assets/icons/check.png";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { useState } from "react";
+import pen from "../../../assets/icons/edit.png";
 
 const SubdomainInfo = ({
   setVisibility,
@@ -12,6 +13,8 @@ const SubdomainInfo = ({
   Email,
   Avatar,
   Webs,
+  edit,
+  cardChanger,
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -22,6 +25,11 @@ const SubdomainInfo = ({
     }, 3000);
   };
 
+  const handleEditFromOutside = () => {
+    cardChanger(true);
+    setVisibility(false);
+  };
+
   return (
     <>
       <section
@@ -29,15 +37,35 @@ const SubdomainInfo = ({
         className="fixed w-full bottom-0 right-0 left-0 top-0 bg-[#000000e0] z-50 flex items-center justify-center"
       ></section>
       <div className="bg-white w-[400px] px-3 fixed -translate-y-[50%] z-[51] -translate-x-[50%] left-[50%] top-[50%] py-10 flex flex-col items-center rounded-lg">
+        {edit && (
+          <div
+            onClick={handleEditFromOutside}
+            className="absolute cursor-pointer py-1 gap-2 items-center px-2 flex bottom-2 right-2 border p-[1px] rounded-md bg-[#e8e8e8] border-[#696969]"
+          >
+            <h2 className="font-semibold">
+              {" "}
+              Since you are the owenr you can edit
+            </h2>
+            <div
+              className="border p-[1px] rounded-md bg-[#ffffff] border-[#696969]"
+              // onClick={hadnleEditAvatar}
+            >
+              <img
+                src={pen}
+                alt="pen"
+                className="w-6 h-6"
+              />
+            </div>
+          </div>
+        )}
         <h2 className="text-xl font-bold">Subdomain Info:</h2>
-
         <img
           src={Avatar}
           alt="prof-pic"
           className="w-32 flex justify-center mt-2 items-center h-32 border border-black rounded-md"
         />
         <h2 className="text-xl font-bold mt-5">{Name}</h2>
-        <ul className="flex mt-4 flex-col items-center text-center">
+        <ul className="flex mt-4 flex-col mb-5 items-center text-center">
           <li className="flex items-center justify-center gap-2">
             <span className="font-bold">Owner:</span> {longAddressCrop(Owner)}{" "}
             <CopyToClipboard text={Owner}>
