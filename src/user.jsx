@@ -30,6 +30,8 @@ const User = () => {
   const [userDomainsAmount, setUserDomainsAmount] = useState(0);
   const [registrarAdd, setRegistrarAdd] = useState("");
 
+  const [ownerCondition, setOwnerCondition] = useState("all");
+
   const [subdInfoVisibility, setSubdInfoVisibility] = useState(false);
   const [allInfoOwnerModal, setAllInfoOwnerModal] = useState(false);
   const [domainImage, setdomainImage] = useState("");
@@ -201,7 +203,28 @@ const User = () => {
   };
 
   const hadnleEditWebsite = () => {
-    console.log("website edit");
+    setOwnerCondition("website");
+    setAllInfoOwnerModal(true);
+  };
+
+  const hadnleEditAvatar = () => {
+    setOwnerCondition("avatar");
+    setAllInfoOwnerModal(true);
+  };
+
+  const hadnleEditDescript = () => {
+    setOwnerCondition("description");
+    setAllInfoOwnerModal(true);
+  };
+
+  const hadnleEditEmail = () => {
+    setOwnerCondition("email");
+    setAllInfoOwnerModal(true);
+  };
+
+  const handleChangeAll = () => {
+    setOwnerCondition("all");
+    setAllInfoOwnerModal(true);
   };
 
   return (
@@ -220,6 +243,7 @@ const User = () => {
           registrarAdd={registrarAdd}
           setVisibility={setAllInfoOwnerModal}
           domain={primaryDomain}
+          condition={ownerCondition}
         />
       )}
 
@@ -252,7 +276,7 @@ const User = () => {
                 />
                 <button
                   className="absolute bottom-2 right-2 border p-[1px] rounded-md bg-[#e8e8e8] border-[#696969]"
-                  onClick={hadnleEditWebsite}
+                  onClick={hadnleEditAvatar}
                 >
                   <img
                     src={edit}
@@ -278,7 +302,7 @@ const User = () => {
                     : domainDesc}
                   <button
                     className="absolute bottom-2 right-2 border p-[1px] rounded-md bg-[#e8e8e8] border-[#696969]"
-                    onClick={hadnleEditWebsite}
+                    onClick={hadnleEditDescript}
                   >
                     <img
                       src={edit}
@@ -313,7 +337,7 @@ const User = () => {
                   Email: {domainEmail === "" ? "not set" : domainEmail}{" "}
                   <button
                     className="border p-[1px] rounded-md bg-[#e8e8e8] border-[#696969]"
-                    onClick={hadnleEditWebsite}
+                    onClick={hadnleEditEmail}
                   >
                     <img
                       src={edit}
@@ -324,7 +348,7 @@ const User = () => {
                 </li>
               </ul>
               <button
-                onClick={() => setAllInfoOwnerModal(true)}
+                onClick={handleChangeAll}
                 className="w-full font-bold bg-[#989898] p-2 rounded-lg"
               >
                 Edit all at once here
