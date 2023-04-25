@@ -23,6 +23,11 @@ const Domain = ({ domain }) => {
   const [domainOwner, setDomainOwner] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const [domainDesc, setDomainDesc] = useState("");
+  const [domainAvatar, setDomainAvatar] = useState("");
+  const [domainEmail, setDomainEmail] = useState("");
+  const [domainWebsite, setDomainWebsite] = useState("");
+
   const [subdInfoVisibility, setSubdInfoVisibility] = useState(false);
   const [displayDomain, setDisplayDomain] = useState();
   const [popOwner, setPopOwner] = useState("");
@@ -36,7 +41,7 @@ const Domain = ({ domain }) => {
     "https://rpc.ankr.com/eth_goerli"
   );
 
-  const registryAdd = "0xC34Bb9A0A3419290fe0258a32a8f2500E127C780";
+  const registryAdd = "0x50Fdeff07AeffD7Ae1a58f913a4536dB3155785a";
 
   const readRegistry = new ethers.Contract(
     registryAdd,
@@ -62,6 +67,13 @@ const Domain = ({ domain }) => {
         );
 
         const subdomains = await readRegistrar.getAllSubDomains();
+
+        const ownerData = await readRegistrar.ownerInfo();
+
+        setDomainDesc(ownerData.description);
+        setDomainAvatar(ownerData.avatar);
+        setDomainEmail(ownerData.email);
+        setDomainWebsite(ownerData.email);
 
         setSubdomainList(subdomains);
         console.log(subdomains);
@@ -124,22 +136,35 @@ const Domain = ({ domain }) => {
       <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
         {/* Avatar */}
         <div className="mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
-          <div className="w-36 p-2 h-36 rounded-xl bg-[#fdfdfd] border-2 border-[#919191]"></div>
+          <div className="w-36 h-36 rounded-md bg-[#fdfdfd] border-2 border-[#919191]">
+            <img
+              src={
+                domainAvatar !== ""
+                  ? domainAvatar
+                  : "https://imgs.search.brave.com/poNnaqRebxpPLTVSB0hS5am3GhVRCX5FtoJNhvc6aI8/rs:fit:300:300:1/g:ce/aHR0cHM6Ly9pMC53/cC5jb20vd3d3LnJl/cG9sLmNvcGwudWxh/dmFsLmNhL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDE5LzAxL2Rl/ZmF1bHQtdXNlci1p/Y29uLmpwZz9maXQ9/MzAwJTJDMzAw"
+              }
+              alt="avatar"
+              className="rounded-md"
+            />
+          </div>
           <h2 className="p-2 rounded-xl bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
             {id}.inu
           </h2>
           {/* <span className="text-[#b3fb7b] text-lg italic">shibarium.com</span> */}
-
           <span className="text-[#b3fb7b] text-lg italic">
             Owner: {domainOwner}
           </span>
-
+          <span className="text-[#b3fb7b] text-lg italic">
+            Website: {domainWebsite}
+          </span>
+          <span className="text-[#b3fb7b] text-lg italic">
+            Email: {domainEmail}
+          </span>
           {/* Description */}
           <p className="max-w-lg text-center mt-5 text-white font-bold">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptates,
-            ad ab impedit, veritatis aliquid similique consectetur fugit maxime
-            ducimus, enim neque voluptatum sequi. Dicta nisi quibusdam
-            voluptatum ab error delectus?
+            {domainDesc === ""
+              ? "Lorem ipsum, dolor sit amet consectetur adipisicing elit Officiis veritatis modi, ullam"
+              : domainDesc}
           </p>
         </div>
 

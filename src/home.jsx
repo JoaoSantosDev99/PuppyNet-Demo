@@ -11,7 +11,7 @@ import registryAbi from "./contracts/registry_abi.json";
 const Home = ({ setter }) => {
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();
-  const registryAddress = "0xC34Bb9A0A3419290fe0258a32a8f2500E127C780";
+  const registryAddress = "0x50Fdeff07AeffD7Ae1a58f913a4536dB3155785a";
 
   const [inputText, setInputText] = useState("");
   const [available, setAvailable] = useState(true);
@@ -81,9 +81,11 @@ const Home = ({ setter }) => {
   };
 
   const validateAddress = async (text) => {
-    const call = await readRegistryContract.checkAvailable(text);
+    const parsedText = ethers.utils.formatBytes32String(text);
+
+    const call = await readRegistryContract.checkAvailable(parsedText);
     setAvailable(call);
-    console.log(call);
+    console.log("call", call);
   };
 
   const purchaseDomain = async () => {
@@ -208,7 +210,7 @@ const Home = ({ setter }) => {
             type="text"
             className="bg-[#ffffff] w-md mb-2 text-center placeholder:text-[#898989] text-[#000000] rounded-lg h-10 px-2 italic font-bold border-[2px] border-[#0e4f84] outline-none"
           />
-          {inputText !== "" && (
+          {/* {inputText !== "" && (
             <div>
               {!available ? (
                 <span className="text-[#000000] font-bold flex justify-center items-center gap-2">
@@ -232,7 +234,7 @@ const Home = ({ setter }) => {
                 </span>
               )}
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Domains List */}

@@ -14,6 +14,7 @@ import { longAddressCrop } from "./utils";
 import NewSubdomainModal from "./components/UI/NewSubdomain";
 import Loading from "./components/UI/LoadingAnimation/Loading";
 import SubdomainInfo from "./components/UI/SubdomainInfo";
+import EditOwnerInfoAll from "./components/UI/EditOwnerInfo";
 
 const User = () => {
   const { address, isConnected } = useAccount();
@@ -21,7 +22,6 @@ const User = () => {
   // real primary domain
   const [primaryDomain, setPrimaryDomain] = useState("");
   const [tokenBalance, setTokenBalance] = useState();
-  const [updateUserData, setUpdateUserData] = useState(false);
   const [newSubModal, setNewSubModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [subdomainList, setSubdomainList] = useState([]);
@@ -29,8 +29,9 @@ const User = () => {
   const [userDomains, setUserDomains] = useState([]);
   const [userDomainsAmount, setUserDomainsAmount] = useState(0);
   const [registrarAdd, setRegistrarAdd] = useState("");
-  const [subdInfoVisibility, setSubdInfoVisibility] = useState(false);
 
+  const [subdInfoVisibility, setSubdInfoVisibility] = useState(false);
+  const [allInfoOwnerModal, setAllInfoOwnerModal] = useState(false);
   const [domainImage, setdomainImage] = useState("");
   const [domainDesc, setdomainDesc] = useState("");
   const [domainWebs, setdomainWebs] = useState("");
@@ -49,7 +50,7 @@ const User = () => {
     "https://rpc.ankr.com/eth_goerli"
   );
 
-  const registryAdd = "0xC34Bb9A0A3419290fe0258a32a8f2500E127C780";
+  const registryAdd = "0x50Fdeff07AeffD7Ae1a58f913a4536dB3155785a";
 
   const readRegistryContract = new ethers.Contract(
     registryAdd,
@@ -213,6 +214,15 @@ const User = () => {
         />
       )}
 
+      {allInfoOwnerModal && (
+        <EditOwnerInfoAll
+          signer={signer}
+          registrarAdd={registrarAdd}
+          setVisibility={setAllInfoOwnerModal}
+          domain={primaryDomain}
+        />
+      )}
+
       {subdInfoVisibility && (
         <SubdomainInfo
           Owner={popOwner}
@@ -314,7 +324,7 @@ const User = () => {
                 </li>
               </ul>
               <button
-                onClick={() => setUpdateUserData(true)}
+                onClick={() => setAllInfoOwnerModal(true)}
                 className="w-full font-bold bg-[#989898] p-2 rounded-lg"
               >
                 Edit all at once here
@@ -466,111 +476,6 @@ const User = () => {
             </Link>
           </div>
         </div>
-
-        {updateUserData && (
-          <div className="bg-[#a9a9a9] rounded-xl mt-10 w-[500px] flex flex-col items-center">
-            <h2 className="text-xl font-bold mt-2">Update User Data</h2>
-
-            {/* InputSections */}
-            <div className="flex flex-col gap-1 mt-2">
-              {/* Description */}
-              <div class="flex justify-center">
-                <div
-                  class="relative mb-1 xl:w-96"
-                  data-te-input-wrapper-init
-                >
-                  <input
-                    type="text"
-                    class="peer block min-h-[auto] w-full rounded border-1 bg-[#242424] py-[0.32rem] px-3 leading-[1.6] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
-                    id="exampleFormControlInput1"
-                    placeholder="Description"
-                  />
-                  <label
-                    for="exampleFormControlInput1"
-                    class="pointer-events-none absolute top-0 left-3 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.37rem] leading-[1.6] transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-data-[te-input-state-active]:-translate-y-[0.9rem] peer-data-[te-input-state-active]:scale-[0.8] motion-reduce:transition-none text-[#ff7d04] font-bold"
-                  >
-                    Description
-                  </label>
-                </div>
-              </div>
-
-              {/* website */}
-              <div class="flex justify-center">
-                <div
-                  class="relative mb-1 xl:w-96"
-                  data-te-input-wrapper-init
-                >
-                  <input
-                    type="text"
-                    class="peer block min-h-[auto] w-full rounded border-1 bg-[#242424] py-[0.32rem] px-3 leading-[1.6] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
-                    id="exampleFormControlInput1"
-                    placeholder="Website"
-                  />
-                  <label
-                    for="exampleFormControlInput1"
-                    class="pointer-events-none absolute top-0 left-3 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.37rem] leading-[1.6] transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-data-[te-input-state-active]:-translate-y-[0.9rem] peer-data-[te-input-state-active]:scale-[0.8] motion-reduce:transition-none text-[#ff7d04] font-bold"
-                  >
-                    Website
-                  </label>
-                </div>
-              </div>
-
-              {/* email */}
-              <div class="flex justify-center">
-                <div
-                  class="relative mb-1 xl:w-96"
-                  data-te-input-wrapper-init
-                >
-                  <input
-                    type="text"
-                    class="peer block min-h-[auto] w-full rounded border-1 bg-[#242424] py-[0.32rem] px-3 leading-[1.6] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
-                    id="exampleFormControlInput1"
-                    placeholder="Email"
-                  />
-                  <label
-                    for="exampleFormControlInput1"
-                    class="pointer-events-none absolute top-0 left-3 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.37rem] leading-[1.6] transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-data-[te-input-state-active]:-translate-y-[0.9rem] peer-data-[te-input-state-active]:scale-[0.8] motion-reduce:transition-none text-[#ff7d04] font-bold"
-                  >
-                    Email
-                  </label>
-                </div>
-              </div>
-
-              {/* avatar */}
-              <div class="flex justify-center">
-                <div
-                  class="relative mb-1 xl:w-96"
-                  data-te-input-wrapper-init
-                >
-                  <input
-                    type="text"
-                    class="peer block min-h-[auto] w-full rounded border-1 bg-[#242424] py-[0.32rem] px-3 leading-[1.6] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 data-[te-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none dark:text-neutral-200 dark:placeholder:text-neutral-200 [&:not([data-te-input-placeholder-active])]:placeholder:opacity-0"
-                    id="exampleFormControlInput1"
-                    placeholder="Avatar"
-                  />
-                  <label
-                    for="exampleFormControlInput1"
-                    class="pointer-events-none absolute top-0 left-3 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.37rem] leading-[1.6] transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-data-[te-input-state-active]:-translate-y-[0.9rem] peer-data-[te-input-state-active]:scale-[0.8] motion-reduce:transition-none text-[#ff7d04] font-bold"
-                  >
-                    Avatar
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2 mb-2 mt-4">
-              <button
-                onClick={() => setUpdateUserData(false)}
-                className="p-2 bg-[#5f5f5f] w-28 font-bold text-white rounded-lg"
-              >
-                Cancel
-              </button>
-              <button className="p-2 bg-[#333333] w-28 font-bold text-white rounded-lg">
-                Submit
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* Subdomain title */}
         {primaryDomain !== "" ? (

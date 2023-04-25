@@ -508,6 +508,26 @@
         "internalType": "address",
         "name": "_target",
         "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "_description",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_website",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_email",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "_avatar",
+        "type": "string"
       }
     ],
     "name": "setNewSubdomain",

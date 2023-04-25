@@ -11,6 +11,11 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
   const [hasAlready, setHasAlready] = useState(false);
   const [validAddr, setValidAddr] = useState(true);
 
+  const [description, setDescription] = useState("");
+  const [avatar, setAvatar] = useState("");
+  const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState("");
+
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth_goerli"
   );
@@ -30,7 +35,7 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
     }
   };
 
-  const registryAddress = "0x211DB1D98C0949416eF78252f95D1c440744bC7E";
+  const registryAddress = "0x73b8CfcD9cAcfA6a07B7cEa27CED869021325962";
 
   const readRegistrarContract = new ethers.Contract(
     registrarAdd,
@@ -69,9 +74,20 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
     setValidAddr(ethers.utils.isAddress(e.target.value));
 
     checkHasDomain();
+  };
 
-    // console.log("is", parsedText);
-    // console.log(e.target.value);
+  const handleDescChange = async (e) => {
+    setDescription(e.target.value);
+  };
+
+  const handleWebsChange = async (e) => {
+    setWebsite(e.target.value);
+  };
+  const handleAvatcChange = async (e) => {
+    setAvatar(e.target.value);
+  };
+  const handleEmailChange = async (e) => {
+    setEmail(e.target.value);
   };
 
   const checkHasDomain = async (text) => {
@@ -82,8 +98,12 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
   };
 
   const createNewSubdomain = async () => {
-    console.log("new domain owner", newSubdomainOwner);
-    console.log("new domain", newSubdomain);
+    // console.log("new domain owner", newSubdomainOwner);
+    // console.log("new domain", newSubdomain);
+    // console.log("desc", description);
+    // console.log("email", email);
+    // console.log("avatar", avatar);
+    // console.log("website", website);
 
     const parsedText = ethers.utils.formatBytes32String(newSubdomain);
 
@@ -104,7 +124,11 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
     try {
       const newSubDom = await registrarContract.setNewSubdomain(
         parsedText,
-        newSubdomainOwner
+        newSubdomainOwner,
+        description,
+        website,
+        email,
+        avatar
       );
 
       await newSubDom.wait();
@@ -136,19 +160,16 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
           type="text"
           className="bg-[#212121] text-center mt-1 rounded-lg p-2 text-white"
         />
-
         {hasAlready && (
           <h2 className="mt-3 text-[#ff1010] font-semibold">
             This address already has a domain!
           </h2>
         )}
-
         {!validAddr && (
           <h2 className="mt-3 text-[#ff1010] font-semibold">
             Not a valid address
           </h2>
         )}
-
         <input
           spellCheck={false}
           value={newSubdomainOwner}
@@ -157,7 +178,47 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
           type="text"
           className="bg-[#212121] text-center mt-1 mb-5 rounded-lg p-2 text-white"
         />
-
+        <input
+          spellCheck={false}
+          value={description}
+          onChange={handleDescChange}
+          placeholder="description"
+          type="text"
+          className="bg-[#212121] text-center mt-1 rounded-lg p-2 text-white"
+        />
+        <input
+          spellCheck={false}
+          value={website}
+          onChange={handleWebsChange}
+          placeholder="website"
+          type="text"
+          className="bg-[#212121] text-center mt-1 rounded-lg p-2 text-white"
+        />
+        <input
+          spellCheck={false}
+          value={email}
+          onChange={handleEmailChange}
+          placeholder="email"
+          type="text"
+          className="bg-[#212121] text-center mt-1 rounded-lg p-2 text-white"
+        />{" "}
+        <input
+          spellCheck={false}
+          value={avatar}
+          onChange={handleAvatcChange}
+          placeholder="avatar"
+          type="text"
+          className="bg-[#212121] text-center mt-1 mb-5 rounded-lg p-2 text-white"
+        />
+        <img
+          src={
+            avatar !== ""
+              ? avatar
+              : "https://imgs.search.brave.com/poNnaqRebxpPLTVSB0hS5am3GhVRCX5FtoJNhvc6aI8/rs:fit:300:300:1/g:ce/aHR0cHM6Ly9pMC53/cC5jb20vd3d3LnJl/cG9sLmNvcGwudWxh/dmFsLmNhL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDE5LzAxL2Rl/ZmF1bHQtdXNlci1p/Y29uLmpwZz9maXQ9/MzAwJTJDMzAw"
+          }
+          alt="avatar"
+          className="w-32 h-32 rounded-md mb-5"
+        />
         {/* buttons */}
         <div className="flex gap-2">
           <button
