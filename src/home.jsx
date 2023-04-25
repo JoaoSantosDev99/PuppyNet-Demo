@@ -11,7 +11,7 @@ import registryAbi from "./contracts/registry_abi.json";
 const Home = ({ setter }) => {
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();
-  const registryAddress = "0x50Fdeff07AeffD7Ae1a58f913a4536dB3155785a";
+  const registryAddress = "0xA72e8b70Fcf2F3a274F37167062A838B13b21Cf7";
 
   const [inputText, setInputText] = useState("");
   const [available, setAvailable] = useState(true);

@@ -61,7 +61,7 @@ const User = () => {
     "https://rpc.ankr.com/eth_goerli"
   );
 
-  const registryAdd = "0x50Fdeff07AeffD7Ae1a58f913a4536dB3155785a";
+  const registryAdd = "0xA72e8b70Fcf2F3a274F37167062A838B13b21Cf7";
 
   const readRegistryContract = new ethers.Contract(
     registryAdd,
