@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { ethers } from "ethers";
 import registryAbi from "../../contracts/registry_abi.json";
+import puppy from "../../assets/dog.png";
 
 const Header = () => {
   const { open } = useWeb3Modal();
@@ -16,8 +17,8 @@ const Header = () => {
   const { address, isConnected } = useAccount();
 
   const connectWallet = () => {
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 719) {
+      switchNetwork?.(719);
     }
     try {
       open();
@@ -26,9 +27,9 @@ const Header = () => {
     }
   };
 
-  const registryAddress = "0xA72e8b70Fcf2F3a274F37167062A838B13b21Cf7";
+  const registryAddress = "0x0B81948E50Df52866eC3787d2c4c850888594EfF";
   const staticProvider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.ankr.com/eth_goerli"
+    "https://puppynet.shibrpc.com"
   );
 
   const readRegistryContract = new ethers.Contract(
@@ -63,7 +64,11 @@ const Header = () => {
 
           {isConnected ? (
             <div className="bg-[#d6d6d6] font-bold text-lg p-3 rounded-md">
-              {primaryDomain !== "" ? primaryDomain : addressShortener(address)}
+              {primaryDomain !== "" ? (
+                <>{primaryDomain}.inu</>
+              ) : (
+                addressShortener(address)
+              )}
             </div>
           ) : (
             <div>
@@ -82,8 +87,13 @@ const Header = () => {
             </div>
           )}
         </div>
-        <div className="max-w-screen-2xl bg-[#484848f0] text-white font-bold w-full flex justify-center items-center p-2 rounded-md">
-          This is a demo running on Goerli
+        <div className="max-w-screen-2xl bg-[#484848f0] text-white font-bold w-full flex justify-center gap-4 items-center p-2 rounded-md">
+          This is a demo running on Puppynet{" "}
+          <img
+            src={puppy}
+            alt=""
+            className="w-7 h-7"
+          />
         </div>
       </div>
     </header>

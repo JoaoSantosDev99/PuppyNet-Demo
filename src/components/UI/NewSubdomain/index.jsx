@@ -17,7 +17,7 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
   const [website, setWebsite] = useState("");
 
   const staticProvider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.ankr.com/eth_goerli"
+    "https://puppynet.shibrpc.com"
   );
 
   const { switchNetwork } = useSwitchNetwork();
@@ -25,8 +25,8 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
   const { chain } = useNetwork();
 
   const connectWallet = () => {
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 719) {
+      switchNetwork?.(719);
     }
     try {
       open();
@@ -34,8 +34,6 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
       console.log(error);
     }
   };
-
-  const registryAddress = "0x73b8CfcD9cAcfA6a07B7cEa27CED869021325962";
 
   const readRegistrarContract = new ethers.Contract(
     registrarAdd,
@@ -106,8 +104,8 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
       connectWallet();
     }
 
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 719) {
+      switchNetwork?.(719);
     }
 
     const registrarContract = new ethers.Contract(

@@ -18,7 +18,7 @@ const EditSubdomModal = ({
   const [condition, setCondition] = useState("all");
 
   const staticProvider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.ankr.com/eth_goerli"
+    "https://puppynet.shibrpc.com"
   );
 
   const { switchNetwork } = useSwitchNetwork();
@@ -26,8 +26,8 @@ const EditSubdomModal = ({
   const { chain } = useNetwork();
 
   const connectWallet = () => {
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 719) {
+      switchNetwork?.(719);
     }
     try {
       open();
@@ -65,8 +65,8 @@ const EditSubdomModal = ({
       connectWallet();
     }
 
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 719) {
+      switchNetwork?.(719);
     }
 
     const registrarContract = new ethers.Contract(

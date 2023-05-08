@@ -58,10 +58,10 @@ const User = () => {
   const { data: signer } = useSigner();
 
   const staticProvider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.ankr.com/eth_goerli"
+    "https://puppynet.shibrpc.com"
   );
 
-  const registryAdd = "0xA72e8b70Fcf2F3a274F37167062A838B13b21Cf7";
+  const registryAdd = "0x0B81948E50Df52866eC3787d2c4c850888594EfF";
 
   const readRegistryContract = new ethers.Contract(
     registryAdd,
@@ -259,6 +259,31 @@ const User = () => {
     }
   };
 
+  const handleDomainTransfer = async () => {
+    console.log(displayDomain);
+    const parsedText = ethers.utils.formatBytes32String(displayDomain);
+    console.log(parsedText);
+
+    const registryContract = new ethers.Contract(
+      registryAdd,
+      registryAbi,
+      signer
+    );
+
+    try {
+      const tranfer = await registryContract.transfer(
+        parsedText,
+        subdomainTarget
+      );
+
+      await tranfer.wait();
+      alert("Subdomain tranfered");
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("Domain transferr");
+  };
+
   const handleReceiverAddress = (e) => {
     setHasSubDomAlready(false);
 
@@ -342,7 +367,7 @@ const User = () => {
                 <img
                   src={domainImage}
                   alt=""
-                  className="rounded-md"
+                  className="rounded-md w-full h-full"
                 />
                 <button
                   className="absolute bottom-2 right-2 border p-[1px] rounded-md bg-[#e8e8e8] border-[#696969]"
@@ -578,7 +603,10 @@ const User = () => {
                 </div>
               </div>
             </div>
-            <button className="gap-2 w-[90%] px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl">
+            <button
+              onClick={handleDomainTransfer}
+              className="gap-2 w-[90%] px-4 bg-[#393939] font-bold text-[#f2f2f2] border-2 border-[#a1a1a1] flex justify-center items-center p-2 rounded-xl"
+            >
               Transfer a Domain
             </button>
 

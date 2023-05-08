@@ -11,7 +11,7 @@ import registryAbi from "./contracts/registry_abi.json";
 const Home = ({ setter }) => {
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();
-  const registryAddress = "0xA72e8b70Fcf2F3a274F37167062A838B13b21Cf7";
+  const registryAddress = "0x4c45914f6659B232716092d9F91934edb5924b50";
 
   const [inputText, setInputText] = useState("");
   const [available, setAvailable] = useState(true);
@@ -20,7 +20,7 @@ const Home = ({ setter }) => {
   const [domainList, setDomainList] = useState([]);
 
   const staticProvider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.ankr.com/eth_goerli"
+    "https://puppynet.shibrpc.com"
   );
 
   const { open } = useWeb3Modal();
@@ -141,8 +141,6 @@ const Home = ({ setter }) => {
   return (
     <section className="w-full flex justify-center">
       <div className="max-w-screen-2xl min-h-[90vh] w-full flex flex-col items-center ">
-        {/* Connect Button */}
-
         {/* Purchase new domain */}
         <div className="mt-40 flex w-80 flex-col items-center justify-center bg-[#646464] p-2 rounded-xl">
           <h3 className="text-xl font-bold mb-3 text-white">
@@ -156,7 +154,7 @@ const Home = ({ setter }) => {
               placeholder="mydomain.inu"
               onChange={handleInputText}
               type="text"
-              className="bg-[#ffffff] w-md mb-2 text-center placeholder:text-[#898989] text-[#000000] rounded-lg h-10 px-2 italic font-bold border-[2px] border-[#0e4f84] outline-none"
+              className="bg-[#ffffff] w-md mb-2 text-center placeholder:text-[#898989] text-[#000000] rounded-lg h-10 px-2 italic font-bold border-[2px] border-[#404040] outline-none"
             />
             {inputText !== "" && (
               <div>
@@ -166,8 +164,8 @@ const Home = ({ setter }) => {
                   </span>
                 ) : (
                   <span className="text-[#ededed] font-bold flex justify-center items-center gap-2">
-                    {chain?.id !== 5 ? (
-                      "Please, connect or switch to Goerli."
+                    {chain?.id !== 719 ? (
+                      "Please, connect or switch to Puppynet."
                     ) : (
                       <div className="flex flex-col items-center">
                         <span className="flex gap-1">{inputText}.inu</span>
@@ -209,31 +207,32 @@ const Home = ({ setter }) => {
             type="text"
             className="bg-[#ffffff] w-md mb-2 text-center placeholder:text-[#898989] text-[#000000] rounded-lg h-10 px-2 italic font-bold border-[2px] border-[#0e4f84] outline-none"
           />
-          {/* {inputText !== "" && (
-            <div>
-              {!available ? (
-                <span className="text-[#000000] font-bold flex justify-center items-center gap-2">
-                  Address already taken!
+          {filterText !== "" && (
+            <div className="bg-[#c7c7c7] gap-1 rounded-md py-3 flex flex-col items-center w-full">
+              {domainList
+                .filter((item) => item.domain.includes(filterText))
+                .map((item) => (
+                  <span className="p-2 rounded-lg">{item.domain}</span>
+                )).length === 0 ? (
+                <span className="p-2 bg-[#a3a3a3] text-center rounded-md font-bold w-[90%]">
+                  Not results found
                 </span>
               ) : (
-                <span className="text-[#ededed] font-bold flex justify-center items-center gap-2">
-                  {chain?.id !== 5 ? (
-                    "Please, connect or switch to Goerli."
-                  ) : (
-                    <div className="flex flex-col items-center">
-                      <span className="flex gap-1">{inputText}.inu</span>
-                      <button
-                        onClick={purchaseDomain}
-                        className="p-2 bg-[#000] rounded-lg"
-                      >
-                        purchase Domain
-                      </button>
-                    </div>
-                  )}
-                </span>
+                domainList
+                  .filter((item) => item.domain.includes(filterText))
+                  .map((item) => (
+                    <Link
+                      className="w-full flex justify-center"
+                      to={`/domain/${item.domain}`}
+                    >
+                      <span className="p-2 bg-[#a3a3a3] text-center rounded-md font-semibold w-[90%]">
+                        {item.domain}.inu
+                      </span>
+                    </Link>
+                  ))
               )}
             </div>
-          )} */}
+          )}
         </div>
 
         {/* Domains List */}

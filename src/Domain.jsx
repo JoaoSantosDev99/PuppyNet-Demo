@@ -43,10 +43,10 @@ const Domain = ({ domain }) => {
   const [allowEdit, setAllowEdit] = useState(false);
 
   const staticProvider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.ankr.com/eth_goerli"
+    "https://puppynet.shibrpc.com"
   );
 
-  const registryAdd = "0xA72e8b70Fcf2F3a274F37167062A838B13b21Cf7";
+  const registryAdd = "0x0B81948E50Df52866eC3787d2c4c850888594EfF";
 
   const readRegistry = new ethers.Contract(
     registryAdd,
@@ -165,7 +165,7 @@ const Domain = ({ domain }) => {
                     : "https://imgs.search.brave.com/poNnaqRebxpPLTVSB0hS5am3GhVRCX5FtoJNhvc6aI8/rs:fit:300:300:1/g:ce/aHR0cHM6Ly9pMC53/cC5jb20vd3d3LnJl/cG9sLmNvcGwudWxh/dmFsLmNhL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDE5LzAxL2Rl/ZmF1bHQtdXNlci1p/Y29uLmpwZz9maXQ9/MzAwJTJDMzAw"
                 }
                 alt="avatar"
-                className="rounded-md"
+                className="rounded-md w-full h-full"
               />
             </div>
 

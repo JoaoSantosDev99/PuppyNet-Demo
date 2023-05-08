@@ -17,17 +17,13 @@ const EditOwnerInfoAll = ({
   const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
 
-  const staticProvider = new ethers.providers.JsonRpcProvider(
-    "https://rpc.ankr.com/eth_goerli"
-  );
-
   const { switchNetwork } = useSwitchNetwork();
   const { open } = useWeb3Modal();
   const { chain } = useNetwork();
 
   const connectWallet = () => {
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 719) {
+      switchNetwork?.(719);
     }
     try {
       open();
@@ -60,8 +56,8 @@ const EditOwnerInfoAll = ({
       connectWallet();
     }
 
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 719) {
+      switchNetwork?.(719);
     }
 
     const registrarContract = new ethers.Contract(
