@@ -27,7 +27,7 @@ const Header = () => {
     }
   };
 
-  const registryAddress = "0x0B81948E50Df52866eC3787d2c4c850888594EfF";
+  const registryAddress = "0xa3e95A1a797711b779d3B70aA4B8380d6b1cf5BF";
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://puppynet.shibrpc.com"
   );
@@ -65,7 +65,7 @@ const Header = () => {
           {isConnected ? (
             <div className="bg-[#d6d6d6] font-bold text-lg p-3 rounded-md">
               {primaryDomain !== "" ? (
-                <>{primaryDomain}.inu</>
+                <>{primaryDomain.slice(0, 11)}.inu</>
               ) : (
                 addressShortener(address)
               )}

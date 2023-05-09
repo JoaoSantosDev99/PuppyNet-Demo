@@ -46,7 +46,7 @@ const Domain = ({ domain }) => {
     "https://puppynet.shibrpc.com"
   );
 
-  const registryAdd = "0x0B81948E50Df52866eC3787d2c4c850888594EfF";
+  const registryAdd = "0xa3e95A1a797711b779d3B70aA4B8380d6b1cf5BF";
 
   const readRegistry = new ethers.Contract(
     registryAdd,
@@ -155,7 +155,7 @@ const Domain = ({ domain }) => {
       <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
         {/* Avatar */}
         <div className="mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
-          <div className="flex items-center gap-2">
+          <div className="flex justify-center flex-wrap items-center gap-2">
             {/* Avatar */}
             <div className="w-40 h-40 rounded-md bg-[#fdfdfd] border-2 border-[#919191]">
               <img
@@ -174,15 +174,13 @@ const Domain = ({ domain }) => {
               <h2 className="p-2 rounded-md bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
                 {id}.inu
               </h2>
-              <p className="max-w-lg flex flex-wrap break-words overflow-y-auto justify-center items-center bg-[#242424] h-24 p-2 rounded-lg text-center mt-2 text-white font-bold">
-                {domainDesc === ""
-                  ? "No description available at the moment"
-                  : domainDesc}
+              <p className="max-w-lg flex flex-wrap break-words overflow-y-auto justify-center items-center bg-[#242424] h-24 px-4 py-2 rounded-lg text-center mt-2 text-white font-bold">
+                {domainDesc === "" ? "No description available." : domainDesc}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col items-center w-[360px] bg-[#d3d3d3] p-3 px-5 rounded-md">
+          <div className="flex flex-col items-center w-[350px] bg-[#d3d3d3] p-3 px-5 rounded-md">
             <span className="text-[#353535] font-bold text-lg italic">
               Owner: {domainOwner !== "" ? domainOwner : "Not set"}
             </span>
@@ -228,7 +226,7 @@ const Domain = ({ domain }) => {
         </ul>
       </div>
       <Link to="/">
-        <button className="fixed right-12 bottom-12 text-xl font-bold bg-white p-3 rounded-lg">
+        <button className="fixed bottom-5 right-5 md:right-12 md:bottom-12 text-xl font-bold bg-white p-3 rounded-lg">
           Back
         </button>
       </Link>

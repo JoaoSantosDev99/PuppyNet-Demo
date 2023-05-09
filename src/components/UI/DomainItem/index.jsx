@@ -6,6 +6,7 @@ const DomainlistItem = ({ domain, owner, setter }) => {
     <Link
       onClick={() => setter(domain)}
       to={`/domain/${domain}`}
+      key={domain}
     >
       <li className="w-72 h-24 bg-white flex flex-col items-center justify-center rounded-xl border-2 border-[#c3c3c3] cursor-pointer text-center">
         <h2 className="font-bold text-xl">{domain}.inu</h2>

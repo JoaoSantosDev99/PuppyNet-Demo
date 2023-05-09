@@ -11,7 +11,7 @@ import registryAbi from "./contracts/registry_abi.json";
 const Home = ({ setter }) => {
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();
-  const registryAddress = "0x4c45914f6659B232716092d9F91934edb5924b50";
+  const registryAddress = "0xa3e95A1a797711b779d3B70aA4B8380d6b1cf5BF";
 
   const [inputText, setInputText] = useState("");
   const [available, setAvailable] = useState(true);
@@ -40,8 +40,8 @@ const Home = ({ setter }) => {
   );
 
   const connectWallet = () => {
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 719) {
+      switchNetwork?.(719);
     }
     try {
       open();
@@ -92,8 +92,8 @@ const Home = ({ setter }) => {
       connectWallet();
     }
 
-    if (chain?.id !== 5) {
-      switchNetwork?.(5);
+    if (chain?.id !== 719) {
+      switchNetwork?.(719);
     }
 
     try {
@@ -141,8 +141,18 @@ const Home = ({ setter }) => {
   return (
     <section className="w-full flex justify-center">
       <div className="max-w-screen-2xl min-h-[90vh] w-full flex flex-col items-center ">
+        <a
+          href="https://puppynetfaucet.com/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <h2 className="mt-40 mb-5 px-5 py-3 font-semibold rounded-lg bg-[#00e3ee]">
+            Get $BONE for testing here
+          </h2>
+        </a>
+
         {/* Purchase new domain */}
-        <div className="mt-40 flex w-80 flex-col items-center justify-center bg-[#646464] p-2 rounded-xl">
+        <div className="flex w-80 flex-col items-center justify-center bg-[#646464] p-2 rounded-md">
           <h3 className="text-xl font-bold mb-3 text-white">
             Purchase New Domain
           </h3>
@@ -189,7 +199,7 @@ const Home = ({ setter }) => {
           onClick={checkBefore}
           to={signer && "/user"}
         >
-          <button className="bg-[#ebebeb] mt-2 w-[320px] flex justify-center items-center h-12 rounded-xl text-[#000000] font-bold p-2">
+          <button className="bg-[#ebebeb] mt-2 w-[320px] flex justify-center items-center h-12 rounded-md text-[#000000] font-bold p-2">
             My Domains
           </button>
         </Link>
@@ -205,10 +215,10 @@ const Home = ({ setter }) => {
             placeholder="Search Domain"
             onChange={handleFilterText}
             type="text"
-            className="bg-[#ffffff] w-md mb-2 text-center placeholder:text-[#898989] text-[#000000] rounded-lg h-10 px-2 italic font-bold border-[2px] border-[#0e4f84] outline-none"
+            className="bg-[#ffffff] w-md mb-2 text-center placeholder:text-[#898989] text-[#000000] rounded-lg h-10 px-2 italic font-bold border-[2px] border-[#686868] outline-none"
           />
           {filterText !== "" && (
-            <div className="bg-[#c7c7c7] gap-1 rounded-md py-3 flex flex-col items-center w-full">
+            <div className="absolute mt-20 w-[300px] bg-[#c7c7c7] gap-1 rounded-md py-3 flex flex-col items-center">
               {domainList
                 .filter((item) => item.domain.includes(filterText))
                 .map((item) => (
@@ -236,7 +246,7 @@ const Home = ({ setter }) => {
         </div>
 
         {/* Domains List */}
-        <ul className="mt-20 mb-32 max-w-4xl flex flex-wrap gap-2">
+        <ul className="mt-20 mb-32 max-w-4xl flex justify-center flex-wrap gap-2">
           {domainList.length === 0 ? (
             <span className="text-white font-bold text-3xl">
               Loading Domains...
@@ -248,6 +258,7 @@ const Home = ({ setter }) => {
                 owner={item.owner}
                 subCount={"To be impl."}
                 setter={setter}
+                key={item.domain}
               />
             ))
           )}

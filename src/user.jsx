@@ -2,7 +2,7 @@ import edit from "./assets/icons/edit.png";
 import down from "./assets/down.png";
 import profile from "./assets/profile.png";
 import { useEffect, useState } from "react";
-import { useAccount, useSigner } from "wagmi";
+import { useAccount, useBalance, useSigner } from "wagmi";
 import { addressShortener } from "./utils";
 import { ethers } from "ethers";
 import DomainlistItem from "./components/UI/DomainItem";
@@ -16,6 +16,7 @@ import Loading from "./components/UI/LoadingAnimation/Loading";
 import SubdomainInfo from "./components/UI/SubdomainInfo";
 import EditOwnerInfoAll from "./components/UI/EditOwnerInfo";
 import EditSubdomModal from "./components/UI/EditSubdom";
+import TransferDomain from "./components/UI/TransferDomain";
 
 const User = () => {
   const { address, isConnected } = useAccount();
@@ -53,6 +54,7 @@ const User = () => {
   const [currentSubdomain, setCurrentSubdomain] = useState("");
 
   const [editSubdomModalVis, setEditSubdomModalVis] = useState(false);
+  const [transferDomainVis, settransferDomainVis] = useState(false);
   const [editSubdomTarget, setEditSubdomTarget] = useState("");
 
   const { data: signer } = useSigner();
@@ -61,7 +63,7 @@ const User = () => {
     "https://puppynet.shibrpc.com"
   );
 
-  const registryAdd = "0x0B81948E50Df52866eC3787d2c4c850888594EfF";
+  const registryAdd = "0xa3e95A1a797711b779d3B70aA4B8380d6b1cf5BF";
 
   const readRegistryContract = new ethers.Contract(
     registryAdd,
@@ -95,6 +97,7 @@ const User = () => {
       setPrimaryDomain(ethers.utils.parseBytes32String(primDom));
       setDisplayDomain(ethers.utils.parseBytes32String(primDom));
       setUserDomains(userDomainsFetch);
+      console.log("userDomains", userDomains, balance);
       setUserDomainsAmount(formatedBalance);
 
       if (true) {
@@ -260,28 +263,7 @@ const User = () => {
   };
 
   const handleDomainTransfer = async () => {
-    console.log(displayDomain);
-    const parsedText = ethers.utils.formatBytes32String(displayDomain);
-    console.log(parsedText);
-
-    const registryContract = new ethers.Contract(
-      registryAdd,
-      registryAbi,
-      signer
-    );
-
-    try {
-      const tranfer = await registryContract.transfer(
-        parsedText,
-        subdomainTarget
-      );
-
-      await tranfer.wait();
-      alert("Subdomain tranfered");
-    } catch (error) {
-      console.log(error);
-    }
-    console.log("Domain transferr");
+    settransferDomainVis(true);
   };
 
   const handleReceiverAddress = (e) => {
@@ -355,13 +337,23 @@ const User = () => {
         />
       )}
 
+      {transferDomainVis && (
+        <TransferDomain
+          signer={signer}
+          setVisibility={settransferDomainVis}
+          address={address}
+          domains={userDomains}
+          balance={userDomainsAmount}
+        />
+      )}
+
       {isLoading && <Loading />}
-      <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
+      <div className="max-w-screen-2xl px-2 flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
         {/* Top row */}
-        <div className=" mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
-          <div className="flex gap-2">
+        <div className="flex-wrap items-center mt-20 sm:mt-44 mb-10 flex flex-col gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             {/* Avatar group */}
-            <div className="flex gap-2">
+            <div className="flex flex-wrap justify-center gap-2">
               {/* Avatar */}
               <div className="relative w-44 p-1 rounded-md flex justify-center items-center h-44 bg-[#222222] border-2 border-[#919191]">
                 <img
@@ -410,7 +402,7 @@ const User = () => {
             </div>
 
             {/* Generic Info Card */}
-            <div className="flex flex-col flex-wrap justify-center items-center gap-1">
+            <div className="flex justify-center items-center flex-col flex-wrap gap-1">
               <ul className="bg-[#c3c3c3] text-center flex justify-center text-[#000000] w-[350px] h-32 flex-col text-lg sm:text-xl font-bold p-3 rounded-xl">
                 <li className="flex justify-center items-center gap-2">
                   Primary: {primaryDomain === "" ? "not set" : primaryDomain}{" "}
@@ -623,8 +615,8 @@ const User = () => {
 
         {/* Subdomain title */}
         {primaryDomain !== "" ? (
-          <h2 className="flex text-[#ffffff] text-4xl font-bold mb-2 mt-20 text-center">
-            Your subdomains for:{" "}
+          <h2 className="flex flex-wrap justify-center text-[#ffffff] text-3xl md:text-4xl font-bold mb-2 mt-20 text-center">
+            <span className="mb-3 md:mb-none">Your subdomains for:</span>{" "}
             <div className="">
               <div className="flex justify-center w-[200px]">
                 <div className="w-[90%] text-lg">
@@ -712,7 +704,7 @@ const User = () => {
         )}
       </div>
       <Link to="/">
-        <button className="fixed right-12 bottom-12 text-xl font-bold bg-white p-3 rounded-lg">
+        <button className="fixed bottom-5 right-5 md:right-12 md:bottom-12 text-xl font-bold bg-white p-3 rounded-lg">
           Back
         </button>
       </Link>

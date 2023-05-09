@@ -16,7 +16,7 @@ function App() {
   const [domain, setDomain] = useState();
   const [totalDomains, setTotalDomains] = useState(0);
   const [domainList, setDomainList] = useState([]);
-  const registryAddress = "0x0B81948E50Df52866eC3787d2c4c850888594EfF";
+  const registryAddress = "0xa3e95A1a797711b779d3B70aA4B8380d6b1cf5BF";
 
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://rpc.ankr.com/eth_goerli"

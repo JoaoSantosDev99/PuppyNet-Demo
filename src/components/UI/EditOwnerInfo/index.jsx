@@ -136,7 +136,7 @@ const EditOwnerInfoAll = ({
         onClick={() => setVisibility(false)}
         className="fixed w-full bottom-0 right-0 left-0 top-0 bg-[#000000e0] z-50 flex items-center justify-center"
       ></section>
-      <div className="bg-white w-[400px] fixed -translate-y-[50%] z-[51] -translate-x-[50%] left-[50%] top-[50%] py-10 flex flex-col items-center rounded-lg">
+      <div className="bg-white w-[350px] fixed -translate-y-[50%] z-[51] -translate-x-[50%] left-[50%] top-[50%] py-10 flex flex-col items-center rounded-lg">
         <h2 className="text-xl mb-4 font-bold">
           Edit Owner Info For{" "}
           <span className="bg-[#0999] p-[1px] px-2 rounded-md">{domain}</span>
