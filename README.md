@@ -1,18 +1,18 @@
 # Documentation
 
 Demo: [https://puppy-net-demo.vercel.app/](https://puppy-net-demo.vercel.app/)
-Registry Address: 
+Registry Address: 0xa3e95A1a797711b779d3B70aA4B8380d6b1cf5BF
 
 ## Introduction
 
-    SNS is simplified version of ENS, created to run on the new Shibarium network. 
+    SNS is simplified version of ENS, created to run on the new Shibarium network.
     The core idea is to match addresses to human readable names, referred as “domains”.
-    Every domain stores additional ( trivial ) data such as “avatar”, “email”, “description” and so on. 
+    Every domain stores additional ( trivial ) data such as “avatar”, “email”, “description” and so on.
 
-![Untitled](Documentation%201dcced73c7404592bcbf6502bf6b52a8/Untitled.png)
+![Untitled]("./src/assets/Docs/1.png")
 
     On top of that, a domain can issue subdomains. This is specially useful when a domain refers to a
-    project where you have multiple wallets related to, like, for example, marketing, development or 
+    project where you have multiple wallets related to, like, for example, marketing, development or
     donations wallet. Those wallets can be easily found by following the structure subdomain.domain.tld
     ( e.g marketing.chainlink.eth ). This leads to a very organized nested system of human readable names.
 
@@ -24,7 +24,7 @@ Registry Address:
     and issue as many subdomains as it wants. Subdomains will also have user data attached to it, data that
     can be modified by either the domain owner or subdomain owner.
 
-![Untitled](Documentation%201dcced73c7404592bcbf6502bf6b52a8/Untitled%201.png)
+![Untitled]("./src/assets/Docs/2.png")
 
      Since a single address can hold more than one domain, but never more than one subdomain ( more on that later ),
      we added the “primary domain” property. It refers to the default name the address should resolve and be
@@ -38,7 +38,7 @@ Registry Address:
      making subdomains a single unit per address, since they are very specific, although an address can
      hold multiple subdomains across different domains.
 
-     Owners of a subdomain have the liberty to change its information by going to the domain page and 
+     Owners of a subdomain have the liberty to change its information by going to the domain page and
      opening the card referred to their subdomain. A more user friendly approach to it is being planned
      at the moment, such as a “my subdomains” tab, for better UX.
 
@@ -50,11 +50,11 @@ Registry Address:
 
 ### Address to name
 
-     To get a domain given a specific address we created the “primaryDomain” property. This allows 
+     To get a domain given a specific address we created the “primaryDomain” property. This allows
      a more dynamic system, since your first domain is automatically set primary it makes it
      an “opt-out” approach.
 
-![Untitled](Documentation%201dcced73c7404592bcbf6502bf6b52a8/Untitled%203.png)
+![Untitled]("./src/assets/Docs/3.png")
 
 ### Name to address
 
@@ -64,7 +64,7 @@ Registry Address:
      also the resolver contract address that contains not only the owner specific
      data ( description, email, avatar… ) but also all the domains attached to it.
 
-![Untitled](Documentation%201dcced73c7404592bcbf6502bf6b52a8/Untitled%204.png)
+![Untitled]("./src/assets/Docs/4.png")
 
 ### Library
 
