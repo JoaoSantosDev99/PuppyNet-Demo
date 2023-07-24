@@ -1,5 +1,3 @@
-import down from "./assets/down.png";
-import profile from "./assets/profile.png";
 import { useEffect, useState } from "react";
 import { useAccount, useSigner } from "wagmi";
 import { addressShortener } from "./utils";
@@ -11,8 +9,6 @@ import registryAbi from "./contracts/registry_abi.json";
 import SubDomainlistItem from "./components/UI/SubdomainItem";
 import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
-import SubdomainInfo from "./components/UI/SubdomainInfo";
-import EditSubdomModal from "./components/UI/EditSubdom";
 
 const Domain = ({ domain }) => {
   const { id } = useParams();
@@ -29,24 +25,11 @@ const Domain = ({ domain }) => {
   const [domainEmail, setDomainEmail] = useState("");
   const [domainWebsite, setDomainWebsite] = useState("");
 
-  const [subdInfoVisibility, setSubdInfoVisibility] = useState(false);
-  const [displayDomain, setDisplayDomain] = useState();
-  const [popOwner, setPopOwner] = useState("");
-  const [popWebsite, setPopWebsite] = useState("");
-  const [popEmail, setPopEmail] = useState("");
-  const [popDesc, setPopDesc] = useState("");
-  const [popAvatar, setPopAvatar] = useState("");
-  const [popName, setPopName] = useState("");
-
-  const [editSubdomModalVis, setEditSubdomModalVis] = useState(false);
-  const [editSubdomTarget, setEditSubdomTarget] = useState("");
-  const [allowEdit, setAllowEdit] = useState(false);
-
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://puppynet.shibrpc.com"
   );
 
-  const registryAdd = "0xa3e95A1a797711b779d3B70aA4B8380d6b1cf5BF";
+  const registryAdd = "0x02CcEf72f68DAb05239A7e0107165D2FC05816B7";
 
   const readRegistry = new ethers.Contract(
     registryAdd,
@@ -57,6 +40,7 @@ const Domain = ({ domain }) => {
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true);
+
       const formatedId = ethers.utils.formatBytes32String(id);
 
       try {
@@ -70,8 +54,6 @@ const Domain = ({ domain }) => {
           staticProvider
         );
 
-        const subdomains = await readRegistrar.getAllSubDomains();
-
         const ownerData = await readRegistrar.ownerInfo();
 
         setDomainDesc(ownerData.description);
@@ -79,7 +61,10 @@ const Domain = ({ domain }) => {
         setDomainEmail(ownerData.email);
         setDomainWebsite(ownerData.website);
 
+        const subdomains = await readRegistrar.getAllSubdomains();
+
         setSubdomainList(subdomains);
+        console.log("array", subdomains);
         setIsLoading(false);
       } catch (error) {
         console.log(error);
@@ -90,74 +75,14 @@ const Domain = ({ domain }) => {
     fetchInitialData();
   }, []);
 
-  const handleSubDomDisplay = async (subdom) => {
-    setAllowEdit(false);
-
-    const registryContract = new ethers.Contract(
-      registryAdd,
-      registryAbi,
-      staticProvider
-    );
-
-    const parsedDisplay = ethers.utils.formatBytes32String(id);
-    const info = await registryContract.registry(parsedDisplay);
-
-    const readRegistrarContract = new ethers.Contract(
-      info.registrar,
-      registrarAbi,
-      staticProvider
-    );
-
-    const parsedSubdom = ethers.utils.formatBytes32String(subdom);
-    const domainInfo = await readRegistrarContract.subDomainData(parsedSubdom);
-
-    if (address === domainInfo.owner) {
-      setAllowEdit(true);
-      setEditSubdomTarget(subdom);
-    }
-
-    setPopOwner(domainInfo.owner);
-    setPopWebsite(domainInfo.website);
-    setPopEmail(domainInfo.email);
-    setPopDesc(domainInfo.description);
-    setPopAvatar(domainInfo.avatar);
-    setPopName(subdom);
-
-    setSubdInfoVisibility(true);
-  };
-
   return (
     <section className="w-full flex justify-center">
-      {subdInfoVisibility && (
-        <SubdomainInfo
-          Owner={popOwner}
-          Webs={popWebsite}
-          Desc={popDesc}
-          Email={popEmail}
-          Avatar={popAvatar}
-          Name={popName}
-          key={popName}
-          edit={allowEdit}
-          cardChanger={setEditSubdomModalVis}
-          setVisibility={setSubdInfoVisibility}
-        />
-      )}
-
-      {editSubdomModalVis && (
-        <EditSubdomModal
-          setVisibility={setEditSubdomModalVis}
-          signer={signer}
-          registrarAdd={registrarAdd}
-          subdomain={editSubdomTarget}
-        />
-      )}
-
       <div className="max-w-screen-2xl flex p-1 sm:px-4 flex-col items-center justify-center min-h-screen w-full">
         {/* Avatar */}
-        <div className="mt-20 sm:mt-44 mb-10 flex flex-col gap-2 items-center">
-          <div className="flex justify-center flex-wrap items-center gap-2">
+        <div className="w-full sm:mt-2 mb-5 flex flex-col gap-2 items-center">
+          <div className="max-w-[730px] w-full flex justify-between flex-wrap items-center gap-2">
             {/* Avatar */}
-            <div className="w-40 h-40 rounded-md bg-[#fdfdfd] border-2 border-[#919191]">
+            <div className="w-52 h-52 rounded-md bg-[#fdfdfd] border-[#919191]">
               <img
                 src={
                   domainAvatar !== ""
@@ -170,61 +95,124 @@ const Domain = ({ domain }) => {
             </div>
 
             {/* Domain and description */}
-            <div className="flex flex-col max-w-xs">
-              <h2 className="p-2 rounded-md bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
+            <div className="flex h-full flex-col w-full max-w-lg">
+              <h2 className="p-2 rounded-sm bg-white min-w-[300px] flex justify-center items-center font-bold text-2xl">
                 {id}.inu
               </h2>
-              <p className="max-w-lg flex flex-wrap break-words overflow-y-auto justify-center items-center bg-[#242424] h-24 px-4 py-2 rounded-lg text-center mt-2 text-white font-bold">
+              <p className="max-w-lg h-full flex flex-wrap break-words overflow-y-auto justify-center items-center bg-[#242424] px-4 py-2 rounded-lg text-center mt-2 text-white font-bold">
                 {domainDesc === "" ? "No description available." : domainDesc}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col items-center w-[350px] bg-[#d3d3d3] p-3 px-5 rounded-md">
-            <span className="text-[#353535] font-bold text-lg italic">
-              Owner: {domainOwner !== "" ? domainOwner : "Not set"}
-            </span>
-            <span className="text-[#353535] font-bold text-lg italic">
-              Website: {domainWebsite !== "" ? domainWebsite : "Not set"}
-            </span>
-            <span className="text-[#353535] font-bold text-lg italic">
+          <div className="gap-2 max-w-[730px] text-center flex w-full justify-center">
+            <div className="bg-white w-full p-2 rounded-sm">
+              {domainOwner !== "" ? domainOwner : "Not set"}
+            </div>
+            <div className="bg-white w-full p-2 rounded-sm">
+              Webs: {domainWebsite !== "" ? domainWebsite : "Not set"}
+            </div>
+            <div className="bg-white w-full p-2 rounded-sm">
               Email: {domainEmail !== "" ? domainEmail : "Not set"}
-            </span>
+            </div>
           </div>
         </div>
 
-        <h2 className="flex text-[#ffffff] text-4xl font-bold mb-2 mt-20 text-center">
+        <h2 className="flex text-[#ffffff] text-4xl font-bold mb-2 mt-10 text-center">
           Subdomains
         </h2>
 
         {/* subdomains List */}
-        <ul className="mt-10 mb-20 max-w-4xl flex justify-center flex-wrap gap-2">
-          {isLoading ? (
+        <ul className="mt-2 mb-20 max-w-4xl flex justify-center flex-wrap gap-2">
+          {/* {isLoading ? (
             <span className="text-3xl text-gray-200">
               Loading Subdomains...
             </span>
           ) : (
             <>
               {subdomainList.length !== 0 ? (
-                subdomainList
-                  .map((item) => ethers.utils.parseBytes32String(item))
-                  .map((item) => (
-                    <SubDomainlistItem
-                      onClick={() => handleSubDomDisplay(item)}
-                      key={item}
-                      parent={displayDomain}
-                      sub={item}
-                    />
-                  ))
+                subdomainList.map((item) => (
+                  <SubDomainlistItem
+                    parent={id}
+                    sub={ethers.utils.parseBytes32String(item)}
+                  />
+                ))
               ) : (
-                <span className="font-bold text-center text-xl text-white">
-                  No subdomains set yet...
+                <span className="max-w-screen-md flex font-bold text-center text-xl text-white">
+                  <SubDomainlistItem
+                    parent={id}
+                    sub={"test"}
+                  />
+                  <SubDomainlistItem
+                    parent={id}
+                    sub={"test"}
+                  />
+                  <SubDomainlistItem
+                    parent={id}
+                    sub={"test"}
+                  />
+                  <SubDomainlistItem
+                    parent={id}
+                    sub={"test"}
+                  />
+                  <SubDomainlistItem
+                    parent={id}
+                    sub={"test"}
+                  />
+                  <SubDomainlistItem
+                    parent={id}
+                    sub={"test"}
+                  />
+                  <SubDomainlistItem
+                    parent={id}
+                    sub={"test"}
+                  />
                 </span>
               )}
             </>
-          )}
+          )} */}
+
+          <span className="max-w-screen-md flex flex-wrap justify-center gap-2 font-bold text-center text-xl text-white">
+            <SubDomainlistItem
+              parent={id}
+              sub={"test"}
+            />
+            <SubDomainlistItem
+              parent={id}
+              sub={"test"}
+            />
+            <SubDomainlistItem
+              parent={id}
+              sub={"test"}
+            />
+            <SubDomainlistItem
+              parent={id}
+              sub={"test"}
+            />
+            <SubDomainlistItem
+              parent={id}
+              sub={"test"}
+            />
+            <SubDomainlistItem
+              parent={id}
+              sub={"test"}
+            />
+            <SubDomainlistItem
+              parent={id}
+              sub={"test"}
+            />
+            <SubDomainlistItem
+              parent={id}
+              sub={"test"}
+            />
+            <SubDomainlistItem
+              parent={id}
+              sub={"test"}
+            />
+          </span>
         </ul>
       </div>
+
       <Link to="/">
         <button className="fixed bottom-5 right-5 md:right-12 md:bottom-12 text-xl font-bold bg-white p-3 rounded-lg">
           Back

@@ -27,7 +27,8 @@ const Header = () => {
     }
   };
 
-  const registryAddress = "0xa3e95A1a797711b779d3B70aA4B8380d6b1cf5BF";
+  const registryAddress = "0x80b5d1b70026DA1fD0Ac4ccF1b545f949b9f2444";
+
   const staticProvider = new ethers.providers.JsonRpcProvider(
     "https://puppynet.shibrpc.com"
   );
@@ -51,9 +52,9 @@ const Header = () => {
   }, []);
 
   return (
-    <header className="w-full flex justify-center pt-1 px-1">
-      <div className="flex flex-col gap-1 w-full justify-center items-center">
-        <div className="max-w-screen-2xl w-full flex justify-between items-center p-2 rounded-md bg-[#242424e3]">
+    <header className="w-full py-2 items-center bg-[#191919] flex justify-center pt-1 px-1">
+      <div className="flex flex-col gap-1 max-w-screen-2xl w-full justify-center items-center">
+        <div className="flex justify-between max-w-screen-2xl w-full">
           <h1>
             <Link to="/">
               <div className="flex w-36 h-14 rounded-md bg-white font-bold text-xl justify-center items-center">
@@ -63,13 +64,15 @@ const Header = () => {
           </h1>
 
           {isConnected ? (
-            <div className="bg-[#d6d6d6] font-bold text-lg p-3 rounded-md">
-              {primaryDomain !== "" ? (
-                <>{primaryDomain.slice(0, 11)}.inu</>
-              ) : (
-                addressShortener(address)
-              )}
-            </div>
+            <Link to="/user">
+              <div className="bg-[#d6d6d6] font-bold text-lg p-3 rounded-md">
+                {primaryDomain !== "" ? (
+                  <>{primaryDomain.slice(0, 11)}.inu</>
+                ) : (
+                  addressShortener(address)
+                )}
+              </div>
+            </Link>
           ) : (
             <div>
               <button
@@ -86,14 +89,6 @@ const Header = () => {
               </button>
             </div>
           )}
-        </div>
-        <div className="max-w-screen-2xl bg-[#484848f0] text-white font-bold w-full flex justify-center gap-4 items-center p-2 rounded-md">
-          This is a demo running on Puppynet{" "}
-          <img
-            src={puppy}
-            alt=""
-            className="w-7 h-7"
-          />
         </div>
       </div>
     </header>

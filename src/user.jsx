@@ -13,7 +13,6 @@ import registrarAbi from "./contracts/registrar_abi.json";
 import { longAddressCrop } from "./utils";
 import NewSubdomainModal from "./components/UI/NewSubdomain";
 import Loading from "./components/UI/LoadingAnimation/Loading";
-import SubdomainInfo from "./components/UI/SubdomainInfo";
 import EditOwnerInfoAll from "./components/UI/EditOwnerInfo";
 import EditSubdomModal from "./components/UI/EditSubdom";
 import TransferDomain from "./components/UI/TransferDomain";
@@ -321,19 +320,6 @@ const User = () => {
           signer={signer}
           registrarAdd={registrarAdd}
           subdomain={editSubdomTarget}
-        />
-      )}
-
-      {subdInfoVisibility && (
-        <SubdomainInfo
-          Owner={popOwner}
-          Webs={popWebsite}
-          Desc={popDesc}
-          Email={popEmail}
-          Avatar={popAvatar}
-          Name={popName}
-          key={popName}
-          setVisibility={setSubdInfoVisibility}
         />
       )}
 

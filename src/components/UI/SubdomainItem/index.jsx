@@ -1,14 +1,8 @@
-import { addressShortener } from "../../../utils/index";
-
-// const DomainlistItem = ({ domain, address, id }) => {
-const SubDomainlistItem = ({ parent, sub, onClick }) => {
+const SubDomainlistItem = ({ parent, sub }) => {
   return (
-    <li
-      onClick={onClick}
-      className="w-72 h-24 bg-white flex flex-col items-center justify-center rounded-xl border-2 border-[#919191] cursor-pointer text-center"
-    >
-      {/* <h2 className="font-bold text-xl">{sub + "." + parent + ".inu"}</h2> */}
-      <h2 className="font-bold text-xl">{sub}</h2>
+    <li className="w-60 h-20 text-black bg-white flex flex-col items-center justify-center rounded-md cursor-pointer text-center">
+      <h2 className="font-bold leading-[20px] text-2xl">{sub}</h2>
+      <h2 className="font-bold leading-[18px] text-lg">{parent}.inu</h2>
     </li>
   );
 };

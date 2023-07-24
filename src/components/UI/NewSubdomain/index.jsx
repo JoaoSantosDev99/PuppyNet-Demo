@@ -140,29 +140,13 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
         className="fixed w-full bottom-0 right-0 left-0 top-0 bg-[#000000e0] z-50 flex items-center justify-center"
       ></section>
       <div className="bg-white w-[350px] fixed -translate-y-[50%] z-[51] -translate-x-[50%] left-[50%] top-[50%] py-10 flex flex-col items-center rounded-lg">
-        <h2 className="text-xl font-bold">Create New Subdomain</h2>
+        <h2 className="text-xl mb-7 font-bold">Create New Subdomain</h2>
         {available && (
           <h2 className="mt-3 text-[#ff1010] font-semibold">
             This subdomain already exists
           </h2>
         )}
-        <img
-          src={
-            avatar !== ""
-              ? avatar
-              : "https://imgs.search.brave.com/poNnaqRebxpPLTVSB0hS5am3GhVRCX5FtoJNhvc6aI8/rs:fit:300:300:1/g:ce/aHR0cHM6Ly9pMC53/cC5jb20vd3d3LnJl/cG9sLmNvcGwudWxh/dmFsLmNhL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDE5LzAxL2Rl/ZmF1bHQtdXNlci1p/Y29uLmpwZz9maXQ9/MzAwJTJDMzAw"
-          }
-          alt="avatar"
-          className="w-32 mt-3 h-32 rounded-md mb-1"
-        />
-        <input
-          spellCheck={false}
-          value={avatar}
-          onChange={handleAvatcChange}
-          placeholder="avatar"
-          type="text"
-          className="bg-[#212121] text-center mt-1 rounded-lg p-2 text-white"
-        />
+
         <input
           value={newSubdomain}
           onChange={handleDomainChange}
@@ -184,7 +168,7 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
           spellCheck={false}
           value={newSubdomainOwner}
           onChange={handleOwnerChange}
-          placeholder="new owner"
+          placeholder="owner"
           type="text"
           className="bg-[#212121] text-center mt-1 rounded-lg p-2 text-white"
         />
@@ -196,24 +180,9 @@ const NewSubdomainModal = ({ setVisibility, signer, registrarAdd }) => {
           type="text"
           className="bg-[#212121] text-center mt-1 rounded-lg p-2 text-white"
         />
-        <input
-          spellCheck={false}
-          value={website}
-          onChange={handleWebsChange}
-          placeholder="website"
-          type="text"
-          className="bg-[#212121] text-center mt-1 rounded-lg p-2 text-white"
-        />
-        <input
-          spellCheck={false}
-          value={email}
-          onChange={handleEmailChange}
-          placeholder="email"
-          type="text"
-          className="bg-[#212121] mb-4 text-center mt-1 rounded-lg p-2 text-white"
-        />{" "}
+
         {/* buttons */}
-        <div className="flex gap-2">
+        <div className="flex mt-4 gap-2">
           <button
             onClick={() => setVisibility(false)}
             className="p-2 bg-[#656565] rounded-lg text-white"

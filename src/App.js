@@ -4,12 +4,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 
-import Home from "./home";
+import Home from "./Home";
 import User from "./user";
-import top from "./assets/top.png";
 import Domain from "./Domain";
 import { ethers } from "ethers";
 import registryAbi from "./contracts/registry_abi.json";
+import puppy from "./assets/dog.png";
 
 function App() {
   // const [backTop, setBackTop] = useState(false);
@@ -69,6 +69,14 @@ function App() {
     <React.Fragment>
       <BrowserRouter>
         <Header />
+        <div className="bg-[#40a7bef0] text-white font-bold w-full flex justify-center gap-4 items-center p-2">
+          This is a demo running on Puppynet{" "}
+          <img
+            src={puppy}
+            alt=""
+            className="w-7 h-7"
+          />
+        </div>
         {/* Back to top */}
         {/* {backTop && (
           <button
@@ -90,7 +98,7 @@ function App() {
             element={<Home setter={setDomain} />}
           />
           <Route
-            path="/domain/:id"
+            path="/:id"
             element={
               <Domain
                 setter={setDomain}
