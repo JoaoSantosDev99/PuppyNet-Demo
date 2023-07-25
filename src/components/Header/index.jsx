@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { ethers } from "ethers";
 import registryAbi from "../../contracts/registry_abi.json";
-import puppy from "../../assets/dog.png";
+import logo from "../../assets/icons/logo.svg";
 
 const Header = () => {
   const { open } = useWeb3Modal();
@@ -52,44 +52,44 @@ const Header = () => {
   }, []);
 
   return (
-    <header className="w-full py-2 items-center bg-[#191919] flex justify-center pt-1 px-1">
-      <div className="flex flex-col gap-1 max-w-screen-2xl w-full justify-center items-center">
-        <div className="flex justify-between max-w-screen-2xl w-full">
-          <h1>
-            <Link to="/">
-              <div className="flex w-36 h-14 rounded-md bg-white font-bold text-xl justify-center items-center">
-                LOGO
-              </div>
-            </Link>
-          </h1>
+    <header className="w-full py-2 items-center bg-[#1c1c1c] flex justify-center px-2">
+      <div className="flex justify-between gap-1 max-w-screen-2xl w-full items-center">
+        <h1>
+          <Link to="/">
+            <img
+              src={logo}
+              alt="logo"
+              className="w-24"
+            />
+          </Link>
+        </h1>
 
-          {isConnected ? (
-            <Link to="/user">
-              <div className="bg-[#d6d6d6] font-bold text-lg p-3 rounded-md">
-                {primaryDomain !== "" ? (
-                  <>{primaryDomain.slice(0, 11)}.inu</>
-                ) : (
-                  addressShortener(address)
-                )}
-              </div>
-            </Link>
-          ) : (
-            <div>
-              <button
-                onClick={connectWallet}
-                className="hidden md:flex bg-[#d6d6d6] p-3 rounded-md"
-              >
-                Connect Wallet
-              </button>
-              <button
-                onClick={connectWallet}
-                className="md:hidden bg-[#d6d6d6] p-3 rounded-md"
-              >
-                Connect
-              </button>
+        {isConnected ? (
+          <Link to="/user">
+            <div className="bg-[#d6d6d6] font-bold text-lg p-3 rounded-md">
+              {primaryDomain !== "" ? (
+                <>{primaryDomain.slice(0, 11)}.inu</>
+              ) : (
+                addressShortener(address)
+              )}
             </div>
-          )}
-        </div>
+          </Link>
+        ) : (
+          <div>
+            <button
+              onClick={connectWallet}
+              className="hidden border-2 border-[#D9B866] md:flex bg-[#731e27] p-3 rounded-md text-[rgb(255,227,158)] font-bold"
+            >
+              Connect Wallet
+            </button>
+            <button
+              onClick={connectWallet}
+              className="md:hidden border-2 border-[#D9B866] bg-[#731e27] p-3 rounded-md text-[rgb(255,227,158)] font-bold"
+            >
+              Connect
+            </button>
+          </div>
+        )}
       </div>
     </header>
   );
